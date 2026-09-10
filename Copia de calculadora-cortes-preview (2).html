@@ -1,0 +1,1603 @@
+<!DOCTYPE html>
+<html lang="es">
+<head><meta charset="UTF-8"><title>Calculadora de Cortes — Polyplas</title></head>
+<body>
+<style>
+.pc-wrap{font-family:Arial,sans-serif;background:#fff;color:#262626;padding:40px 20px;max-width:1100px;margin:0 auto;box-sizing:border-box}
+.pc-wrap *{box-sizing:border-box}
+.pc-header{text-align:center;margin-bottom:32px}
+.pc-header h2{font-size:clamp(1.8rem,4.5vw,2.6rem);letter-spacing:1px;margin:0}
+.pc-header h2 span{color:#004a99}
+.pc-header p{color:#5a5a5a;font-size:.9rem;margin-top:8px}
+.pc-grid{display:grid;grid-template-columns:400px 1fr;gap:24px;align-items:start}
+@media(max-width:860px){.pc-grid{grid-template-columns:1fr}}
+.pc-card{background:#f9fbff;border:1px solid #dde4ef;border-radius:10px;padding:22px}
+.pc-label{font-size:.7rem;text-transform:uppercase;letter-spacing:2px;color:#004a99;font-weight:700;margin-bottom:10px}
+.pc-divider{height:1px;background:#dde4ef;margin:18px 0}
+.pc-hint{font-size:.75rem;color:#8a8a8a;margin-bottom:10px;line-height:1.5}
+
+/* Material pills */
+.pc-mat-pills{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:4px}
+.pc-mat-pill{padding:8px 14px;border-radius:6px;border:1.5px solid #dde4ef;background:#fff;color:#5a5a5a;font-size:.82rem;font-family:Arial,sans-serif;cursor:pointer;transition:all .18s;font-weight:500}
+.pc-mat-pill:hover{border-color:#004a99;color:#004a99}
+.pc-mat-pill.active{background:#004a99;border-color:#004a99;color:#fff;font-weight:600}
+
+/* Quality cards (Level 1) */
+.pc-quality-cards{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:4px}
+.pc-quality-card{display:flex;align-items:center;gap:12px;padding:14px 12px;border-radius:10px;border:2px solid #dde4ef;background:#fff;cursor:pointer;transition:all .18s;text-align:left;font-family:Arial,sans-serif}
+.pc-quality-card:hover{border-color:#004a99;background:#f5f8ff}
+.pc-quality-card.active{border-color:#004a99;background:#eef3fc;box-shadow:0 0 0 3px rgba(0,74,153,.08)}
+.pc-quality-badge{min-width:44px;height:44px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:.88rem;font-weight:800;letter-spacing:.5px;flex-shrink:0}
+.pc-quality-pa{background:#004a99;color:#fff}
+.pc-quality-aa{background:#e8f0fd;color:#004a99;border:1.5px solid #bdd0f5}
+.pc-quality-info strong{display:block;font-size:.82rem;color:#262626;font-weight:700;margin-bottom:3px;line-height:1.2}
+.pc-quality-info span{font-size:.68rem;color:#6a6a6a;line-height:1.35;display:block}
+/* Others separator */
+.pc-otros-sep{display:flex;align-items:center;gap:10px;margin:14px 0 10px;color:#9a9a9a;font-size:.65rem;text-transform:uppercase;letter-spacing:1.5px;font-weight:700}
+.pc-otros-sep::before,.pc-otros-sep::after{content:'';flex:1;height:1px;background:#dde4ef}
+
+/* Progressive sections */
+.pc-prog-sec{display:none;animation:pcFadeIn .28s ease both}
+.pc-prog-sec.show{display:block}
+@keyframes pcFadeIn{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+
+/* Color swatches */
+.pc-color-grid{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:4px}
+.pc-color-opt{display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer}
+.pc-color-dot{width:38px;height:38px;border-radius:50%;border:2.5px solid #dde4ef;transition:all .18s;background-color:#e0e0e0}
+.pc-color-dot-img{width:64px;height:64px;border-radius:10px;border:2.5px solid #dde4ef;background-size:cover;background-position:center;box-shadow:0 2px 6px rgba(0,0,0,.08)}
+.pc-color-opt:hover .pc-color-dot,.pc-color-opt:hover .pc-color-dot-img{border-color:#004a99;box-shadow:0 0 0 3px rgba(0,74,153,.1)}
+.pc-color-opt.active .pc-color-dot,.pc-color-opt.active .pc-color-dot-img{border-color:#004a99;box-shadow:0 0 0 3px rgba(0,74,153,.22)}
+.pc-color-opt span{font-size:.62rem;color:#5a5a5a;text-align:center;max-width:68px;line-height:1.3}
+.pc-color-opt.active span{color:#004a99;font-weight:700}
+
+/* Dimension pills */
+.pc-dim-pills{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:4px}
+.pc-dim-pill{padding:8px 14px;border-radius:6px;border:1.5px solid #dde4ef;background:#fff;color:#5a5a5a;font-size:.82rem;font-family:Arial,sans-serif;cursor:pointer;transition:all .18s;font-weight:500}
+.pc-dim-pill:hover{border-color:#004a99;color:#004a99}
+.pc-dim-pill.active{background:#004a99;border-color:#004a99;color:#fff;font-weight:600}
+
+/* Espesor grid */
+.pc-esp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(66px,1fr));gap:8px;margin-bottom:4px}
+.pc-esp-btn{padding:11px 4px;text-align:center;border-radius:8px;border:1.5px solid #dde4ef;background:#fff;color:#5a5a5a;font-size:.8rem;font-family:Arial,sans-serif;cursor:pointer;transition:all .18s;font-weight:500}
+.pc-esp-btn:hover{border-color:#004a99;color:#004a99}
+.pc-esp-btn.active{background:#004a99;border-color:#004a99;color:#fff;font-weight:700}
+
+/* Pieces */
+.pc-piece{background:#fff;border:1px solid #dde4ef;border-radius:8px;padding:12px;margin-bottom:10px}
+.pc-piece-grid{display:grid;grid-template-columns:1fr 1fr 70px 28px;gap:8px;align-items:end}
+.pc-piece input{width:100%;padding:7px 8px;border:1px solid #dde4ef;border-radius:5px;font-size:.82rem;font-family:Arial,sans-serif}
+.pc-piece input:focus{outline:none;border-color:#004a99}
+.pc-piece-mini{font-size:.65rem;color:#8a8a8a;margin-bottom:3px}
+.pc-piece-del{width:28px;height:34px;border-radius:5px;border:1px solid #f3c9c9;background:#fff5f5;color:#d33;cursor:pointer;font-size:1rem;line-height:1}
+.pc-piece-del:hover{background:#ffe3e3}
+.pc-add-btn{width:100%;padding:10px;border:1.5px dashed #b9c8de;border-radius:8px;background:#fff;color:#004a99;font-weight:700;font-size:.82rem;cursor:pointer;margin-top:4px}
+.pc-add-btn:hover{background:#f0f5ff;border-color:#004a99}
+.pc-calc-btn{width:100%;margin-top:18px;padding:14px;border:none;border-radius:8px;background:#004a99;color:#fff;font-weight:700;font-size:.92rem;letter-spacing:.5px;cursor:pointer;transition:background .15s;font-family:Arial,sans-serif}
+.pc-calc-btn:hover{background:#003c7d}
+.pc-error{background:#fff5f5;border:1px solid #f3c9c9;color:#b42318;border-radius:6px;padding:10px 12px;font-size:.82rem;margin-top:12px;display:none}
+
+/* Results empty */
+.pc-results-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:300px;color:#8a8a8a;text-align:center;font-size:.88rem;padding:40px 20px}
+
+/* Layout stats */
+.pcc-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:10px}
+.pcc-stat{background:#f8faff;border:1px solid #e2e8f0;border-radius:9px;padding:10px 6px;text-align:center}
+.pcc-stat .n{font-size:1.3rem;font-weight:800;color:#004a99}
+.pcc-stat .l{font-size:.57rem;text-transform:uppercase;letter-spacing:1px;color:#6b7280;margin-top:2px}
+.pcc-al{border-radius:8px;padding:9px 12px;font-size:.79rem;margin-bottom:8px;line-height:1.5}
+.al-ok{background:#f0fdf4;border:1px solid #bbf7d0;color:#166534}
+.al-warn{background:#fefce8;border:1px solid #fde68a;color:#92400e}
+.al-err{background:#fff1f2;border:1px solid #fecdd3;color:#be123c}
+.al-info{background:#eff6ff;border:1px solid #bfdbfe;color:#1e40af}
+.pcc-viz-lbl{font-size:.6rem;text-transform:uppercase;letter-spacing:1.5px;color:#004a99;font-weight:700;margin:14px 0 6px}
+.pcc-ley{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:8px}
+.pcc-ley span{display:flex;align-items:center;gap:4px;font-size:.69rem;color:#374151;background:#f9fafb;border-radius:20px;padding:2px 8px;border:1px solid #e5e7eb}
+.pcc-ley i{width:8px;height:8px;border-radius:2px;flex-shrink:0;font-style:normal}
+.pcc-sheets-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-bottom:8px}
+.pc-pdf-btn{display:inline-flex;align-items:center;gap:6px;background:#004a99;color:#fff;border:none;border-radius:7px;padding:7px 14px;font-size:.75rem;font-weight:700;cursor:pointer;letter-spacing:.3px;transition:background .15s;}
+.pc-pdf-btn:hover{background:#003c7d;}
+@media print{
+  body>*:not(.pc-wrap){display:none!important;}
+  .pc-wrap>*:not(#pcResults){display:none!important;}
+  #pcResults{display:block!important;margin:0!important;padding:8px!important;border:none!important;border-radius:0!important;background:#fff!important;}
+  .pc-pdf-btn,.pcc-more-sheets>summary{display:none!important;}
+  details.pcc-more-sheets{display:block!important;}
+  details.pcc-more-sheets>.pcc-sheets-grid{display:grid!important;}
+  .pcc-sheets-grid{gap:10px;margin-bottom:10px;}
+  .pcc-svg-hdr{background:#f1f5fc!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+  @page{margin:1.2cm;size:A4;}
+}
+.pcc-svg-w{background:#fff;border:1px solid #e2e8f0;border-radius:9px;overflow:hidden;}
+.pcc-svg-hdr{display:flex;align-items:center;justify-content:space-between;padding:6px 10px;background:#f1f5fc;border-bottom:1px solid #e2e8f0;}
+.pcc-svg-hdr-n{font-size:.65rem;font-weight:700;color:#004a99;}
+.pcc-svg-hdr-dim{font-size:.61rem;color:#6b7280;background:#e5eaf5;border-radius:20px;padding:1px 7px;white-space:nowrap;}
+.pcc-svg-body{padding:6px;}
+.pcc-svg-lbl{font-size:.71rem;font-weight:700;color:#004a99;margin-bottom:5px}
+.pcc-more-sheets{margin-top:4px}
+.pcc-more-sheets>summary{cursor:pointer;font-size:.74rem;color:#004a99;font-weight:600;padding:7px 0 4px;list-style:none;user-select:none;display:flex;align-items:center;gap:5px}
+.pcc-more-sheets>summary::-webkit-details-marker{display:none}
+.pcc-more-sheets>summary::before{content:"▸";font-size:.7rem}
+.pcc-more-sheets[open]>summary::before{content:"▾"}
+.pc-waste-low{color:#28a745}
+.pc-waste-mid{color:#e8a000}
+.pc-waste-high{color:#e52727}
+.pc-price-box{background:linear-gradient(135deg,#eef3fc,#ddeaff);border:1px solid rgba(0,74,153,.2);border-radius:10px;padding:16px 20px;margin-bottom:14px}
+.pc-price-label{font-size:.65rem;text-transform:uppercase;letter-spacing:2px;color:#5a5a5a;margin-bottom:4px}
+.pc-price-spec{font-size:.78rem;color:#5a5a5a;margin-bottom:12px}
+.pc-price-total-num{font-family:Arial,sans-serif;font-size:1.7rem;font-weight:800;color:#004a99;letter-spacing:1px}
+.pc-price-hint{font-size:.65rem;color:#8a8a8a;margin-top:6px}
+.pco-cta-webpay{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:14px;border:none;border-radius:9px;background:#004a99;color:#fff;font-family:Arial,sans-serif;font-size:.92rem;font-weight:700;letter-spacing:.4px;cursor:pointer;transition:background .15s;margin-top:4px;box-shadow:0 4px 16px rgba(0,74,153,.22)}
+.pco-cta-webpay:hover{background:#003c7d}
+.pc-cta-wa-sec{display:flex;align-items:center;justify-content:center;gap:7px;width:100%;padding:9px;border:1.5px solid #25D366;border-radius:8px;background:transparent;color:#25D366;font-family:Arial,sans-serif;font-size:.78rem;font-weight:700;cursor:pointer;text-decoration:none;transition:background .15s;margin-top:7px}
+.pc-cta-wa-sec:hover{background:#f0fff4}
+
+/* Sierra badge */
+.pc-sierra-badge{display:inline-flex;align-items:center;gap:5px;background:#fff3cd;color:#856404;border:1px solid #fde3a1;border-radius:20px;padding:3px 10px;font-size:.7rem;font-weight:700;margin-bottom:14px}
+
+/* ── Checkout modal ── */
+.pco-overlay{display:none;position:fixed;inset:0;background:rgba(0,74,153,.12);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);z-index:9999;align-items:center;justify-content:center;padding:16px}
+.pco-overlay.open{display:flex}
+.pco-modal{background:#fff;border-radius:20px;width:100%;max-width:540px;max-height:92vh;overflow-y:auto;font-family:Arial,sans-serif;color:#1a1a2e;box-sizing:border-box;box-shadow:0 24px 64px rgba(0,74,153,.15)}
+.pco-modal *{box-sizing:border-box}
+.pco-mhdr{display:flex;align-items:center;justify-content:space-between;padding:20px 24px 16px;background:linear-gradient(135deg,#004a99,#0068cc);border-radius:20px 20px 0 0}
+.pco-mhdr h2{font-size:1.35rem;letter-spacing:2px;color:#fff;margin:0;font-family:Arial,sans-serif}
+.pco-mclose{background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.3);color:#fff;width:32px;height:32px;border-radius:8px;cursor:pointer;font-size:1.1rem;display:flex;align-items:center;justify-content:center;font-family:Arial,sans-serif}
+.pco-mclose:hover{background:rgba(255,255,255,.35)}
+.pco-mbody{padding:20px 24px}
+.pco-steps{display:flex;align-items:center;margin-bottom:20px}
+.pco-step{display:flex;flex-direction:column;align-items:center;gap:5px}
+.pco-step-num{width:28px;height:28px;border-radius:50%;background:#dde4ef;color:#999;font-size:.74rem;font-weight:700;display:flex;align-items:center;justify-content:center;transition:all .2s}
+.pco-step.active .pco-step-num{background:#004a99;color:#fff}
+.pco-step.done .pco-step-num{background:#28a745;color:#fff}
+.pco-step-lbl{font-size:.6rem;text-transform:uppercase;letter-spacing:1px;color:#aaa;font-weight:600;white-space:nowrap}
+.pco-step.active .pco-step-lbl{color:#004a99}
+.pco-step.done .pco-step-lbl{color:#28a745}
+.pco-step-line{flex:1;height:2px;background:#dde4ef;margin:0 10px 12px;transition:background .2s}
+.pco-step-line.done{background:#28a745}
+.pco-sdiv{font-size:.63rem;text-transform:uppercase;letter-spacing:2px;color:#004a99;font-weight:700;display:flex;align-items:center;gap:10px;margin:16px 0 12px}
+.pco-sdiv::after{content:'';flex:1;height:1px;background:#dde4ef}
+.pco-sumbox{background:#f0f4fb;border-radius:10px;padding:12px 16px;margin-bottom:16px;border:1px solid #ccd8ee}
+.pco-sumbox-ttl{font-size:.63rem;text-transform:uppercase;letter-spacing:2px;color:#004a99;font-weight:700;margin-bottom:7px}
+.pco-sumrow{font-size:.8rem;color:#555;display:flex;justify-content:space-between;gap:12px;padding:3px 0}
+.pco-sumrow strong{color:#004a99;white-space:nowrap}
+.pco-toggle{display:flex;background:#f0f4fb;border-radius:10px;padding:4px;margin-bottom:18px;gap:4px}
+.pco-toggle button{flex:1;padding:9px;border-radius:8px;border:none;background:none;color:#004a99;font-family:Arial,sans-serif;font-size:.82rem;font-weight:600;cursor:pointer;transition:all .18s}
+.pco-toggle button.active{background:#004a99;color:#fff;box-shadow:0 2px 10px rgba(0,74,153,.2)}
+.pco-fgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:18px}
+.pco-full{grid-column:1/-1}
+.pco-field label{display:block;font-size:.64rem;text-transform:uppercase;letter-spacing:1.5px;color:#004a99;margin-bottom:5px;font-weight:700}
+.pco-ferr{display:none;font-size:.69rem;color:#dc2626;margin-top:3px}
+.pco-field input,.pco-field select{width:100%;padding:10px 12px;background:#f7f9fd;border:1.5px solid #ccd8ee;border-radius:8px;color:#1a1a2e;font-family:Arial,sans-serif;font-size:.86rem;outline:none;-webkit-appearance:none;appearance:none;transition:border-color .15s,box-shadow .15s}
+.pco-field input:focus,.pco-field select:focus{border-color:#004a99!important;box-shadow:0 0 0 3px rgba(0,74,153,.1)!important;background:#fff}
+.pco-field input.pco-e,.pco-field select.pco-e{border-color:#dc2626!important;box-shadow:0 0 0 2px rgba(220,38,38,.12)!important}
+.pco-field input.pco-k,.pco-field select.pco-k{border-color:#28a745!important}
+.pco-ferr-msg{display:none;margin-bottom:10px;padding:10px 14px;background:#fef2f2;border-left:3px solid #dc2626;border-radius:8px;font-size:.78rem;color:#dc2626;font-weight:600}
+.pco-btn-next{width:100%;padding:13px;border-radius:9px;border:none;background:#004a99;color:#fff;font-family:Arial,sans-serif;font-size:.92rem;font-weight:700;cursor:pointer;margin-top:6px;letter-spacing:.4px;transition:background .2s;display:flex;align-items:center;justify-content:center;gap:8px}
+.pco-btn-next:hover{background:#003366}
+.pco-etitle{font-size:.63rem;text-transform:uppercase;letter-spacing:1.5px;color:#004a99;font-weight:700;margin-bottom:10px}
+.pco-eopts{display:flex;flex-direction:column;gap:8px;margin-bottom:16px}
+.pco-eopt{display:flex;align-items:center;gap:12px;padding:12px 14px;border:1.5px solid #ccd8ee;border-radius:10px;cursor:pointer;transition:all .18s;background:#f7f9fd}
+.pco-eopt:hover{border-color:#004a99;background:#edf2ff}
+.pco-eopt.sel{border-color:#004a99;background:#edf2ff}
+.pco-eicon{font-size:1.2rem;flex-shrink:0}
+.pco-einfo{flex:1}
+.pco-einfo strong{display:block;font-size:.83rem;color:#1a1a2e;font-weight:600}
+.pco-einfo span{font-size:.73rem;color:#666}
+.pco-ebadge{font-size:.62rem;font-weight:700;letter-spacing:1px;padding:3px 7px;border-radius:20px;white-space:nowrap}
+.pco-bg{background:#d4edda;color:#155724}
+.pco-bp{background:#fff3cd;color:#856404}
+.pco-infobox{display:none;margin-top:12px;border-radius:10px;padding:14px 16px}
+.pco-infobox-retiro{background:#f0f4fb;border:1px solid #ccd8ee}
+.pco-infobox-envio{background:#fffbeb;border:1px solid #fde68a}
+.pco-infobox-ttl{font-size:.63rem;text-transform:uppercase;letter-spacing:1.5px;font-weight:700;margin-bottom:8px;color:#004a99}
+.pco-infobox-envio .pco-infobox-ttl{color:#92400e}
+.pco-infobox-body{font-size:.83rem;color:#1a1a2e;line-height:1.9}
+.pco-addr-ttl{font-size:.63rem;text-transform:uppercase;letter-spacing:1.5px;color:#004a99;font-weight:700;margin:14px 0 8px}
+.pco-mtotal{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;padding:14px 16px;background:#004a99;border-radius:12px}
+.pco-mtotal span{color:rgba(255,255,255,.8);font-size:.8rem}
+.pco-mtotal strong{font-size:1.65rem;color:#fff;letter-spacing:2px;font-family:Arial,sans-serif}
+.pco-btn-wp{width:100%;padding:15px;border-radius:11px;border:none;background:#28a745;color:#fff;font-family:Arial,sans-serif;font-size:.93rem;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;transition:all .2s;letter-spacing:.4px;box-shadow:0 4px 16px rgba(40,167,69,.28)}
+.pco-btn-wp:hover{background:#218838;transform:translateY(-1px)}
+.pco-btn-wp:disabled{opacity:.55;cursor:not-allowed;transform:none;box-shadow:none}
+.pco-wpnote{text-align:center;font-size:.69rem;color:#888;margin-top:8px}
+.pco-btn-back{width:100%;margin-top:8px;padding:12px;border-radius:8px;border:1.5px solid #dde4ef;background:#fff;color:#262626;font-family:Arial,sans-serif;font-size:.84rem;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px}
+.pco-btn-back:hover{background:#f0f4ff;border-color:#004a99}
+
+/* ── Wizard ── */
+@keyframes pcSlideIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.pc-wiz-bar{display:flex;align-items:center;margin-bottom:22px}
+.pc-wiz-step{display:flex;flex-direction:column;align-items:center;gap:4px;flex-shrink:0}
+.pc-wiz-dot{width:30px;height:30px;border-radius:50%;background:#dde4ef;color:#999;font-size:.74rem;font-weight:700;display:flex;align-items:center;justify-content:center;transition:all .2s;border:2px solid #dde4ef}
+.pc-wiz-dot.active{background:#004a99;color:#fff;border-color:#004a99}
+.pc-wiz-dot.done{background:#28a745;color:#fff;border-color:#28a745}
+.pc-wiz-lbl{font-size:.58rem;text-transform:uppercase;letter-spacing:1px;color:#aaa;font-weight:600;white-space:nowrap}
+.pc-wiz-lbl.active{color:#004a99}
+.pc-wiz-lbl.done{color:#28a745}
+.pc-wiz-line{flex:1;height:2px;background:#dde4ef;margin:0 6px 16px;transition:background .2s}
+.pc-wiz-line.done{background:#28a745}
+.pc-wiz-title{font-size:.7rem;text-transform:uppercase;letter-spacing:2px;color:#004a99;font-weight:700;margin-bottom:14px;display:flex;align-items:center;gap:8px}
+.pc-wiz-title::after{content:'';flex:1;height:1px;background:#dde4ef}
+.pc-wiz-body{animation:pcSlideIn .25s ease both}
+.pc-mat-type-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px;margin-bottom:4px}
+.pc-mat-type-card{padding:16px 14px;border-radius:10px;border:2px solid #dde4ef;background:#fff;cursor:pointer;transition:all .18s;text-align:left}
+.pc-mat-type-card:hover{border-color:#004a99;background:#f5f8ff}
+.pc-mat-type-card.active{border-color:#004a99;background:#eef3fc;box-shadow:0 0 0 3px rgba(0,74,153,.08)}
+.pc-mat-type-icon{font-size:1.4rem;margin-bottom:7px}
+.pc-mat-type-name{font-size:.85rem;font-weight:700;color:#262626;margin-bottom:3px}
+.pc-mat-type-desc{font-size:.67rem;color:#6a6a6a;line-height:1.4}
+.pc-dim-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:10px;margin-bottom:4px}
+.pc-dim-card{padding:14px;border-radius:10px;border:2px solid #dde4ef;background:#fff;cursor:pointer;transition:all .18s}
+.pc-dim-card:hover{border-color:#004a99;background:#f5f8ff}
+.pc-dim-card.active{border-color:#004a99;background:#eef3fc;box-shadow:0 0 0 3px rgba(0,74,153,.08)}
+.pc-dim-card-label{font-size:.82rem;font-weight:700;color:#262626}
+.pc-dim-card-sheets{font-size:1.3rem;font-weight:800;color:#004a99;line-height:1;margin-top:6px}
+.pc-dim-card-sub{font-size:.62rem;color:#8a8a8a;margin-top:1px}
+.pc-combo-grid{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:4px}
+.pc-combo-card{display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;padding:8px 6px;border-radius:10px;border:2px solid transparent;transition:all .18s;min-width:82px}
+.pc-combo-card:hover{border-color:#004a99;background:#f5f8ff}
+.pc-combo-card.active{border-color:#004a99;background:#eef3fc;box-shadow:0 0 0 3px rgba(0,74,153,.1)}
+.pc-combo-img{width:64px;height:64px;border-radius:10px;border:2.5px solid #dde4ef;background-size:cover;background-position:center;box-shadow:0 2px 6px rgba(0,0,0,.08)}
+.pc-combo-quality{font-size:.6rem;font-weight:800;padding:2px 7px;border-radius:4px;letter-spacing:.5px}
+.pc-combo-quality-pa{background:#004a99;color:#fff}
+.pc-combo-quality-aa{background:#e8f0fd;color:#004a99;border:1px solid #bdd0f5}
+.pc-combo-color-name{font-size:.62rem;color:#5a5a5a;text-align:center;max-width:82px;line-height:1.3}
+.pc-combo-card.active .pc-combo-color-name{color:#004a99;font-weight:700}
+.pc-wiz-back{margin-top:12px;padding:9px 18px;border:1.5px solid #dde4ef;border-radius:8px;background:#fff;color:#5a5a5a;font-family:Arial,sans-serif;font-size:.8rem;cursor:pointer;display:inline-flex;align-items:center;gap:5px}
+.pc-wiz-back:hover{background:#f0f4ff;border-color:#004a99;color:#004a99}
+
+/* ── Carrito ── */
+.pc-cart-item{background:#fff;border:1px solid #dde4ef;border-radius:10px;padding:16px 44px 16px 16px;margin-bottom:10px;position:relative}
+.pc-cart-item-spec{font-size:.83rem;font-weight:700;color:#262626;margin-bottom:2px}
+.pc-cart-item-sub{font-size:.72rem;color:#5a5a5a;margin-bottom:6px}
+.pc-cart-item-footer{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:6px;padding-top:8px;border-top:1px solid #eef3fc}
+.pc-cart-item-total{font-size:1.05rem;font-weight:800;color:#004a99}
+.pc-cart-item-del{position:absolute;top:10px;right:10px;width:26px;height:26px;border-radius:6px;border:1px solid #f3c9c9;background:#fff5f5;color:#d33;cursor:pointer;font-size:.95rem;line-height:1;display:flex;align-items:center;justify-content:center;font-family:Arial,sans-serif}
+.pc-cart-item-del:hover{background:#ffe3e3}
+.pc-cart-total-row{display:flex;justify-content:space-between;align-items:center;padding:14px 0;border-top:2px solid #dde4ef;margin-top:6px}
+.pc-cart-total-label{font-size:.65rem;text-transform:uppercase;letter-spacing:2px;font-weight:700;color:#5a5a5a}
+.pc-cart-total-val{font-size:1.55rem;font-weight:800;color:#004a99;letter-spacing:1px}
+.pc-cart-btn-add{width:100%;margin-top:10px;padding:11px;border:1.5px dashed #004a99;border-radius:8px;background:#fff;color:#004a99;font-weight:700;font-size:.82rem;cursor:pointer;font-family:Arial,sans-serif;transition:background .15s}
+.pc-cart-btn-add:hover{background:#f0f5ff}
+.pc-cart-btn-checkout{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:14px;border:none;border-radius:9px;background:#004a99;color:#fff;font-family:Arial,sans-serif;font-size:.92rem;font-weight:700;letter-spacing:.4px;cursor:pointer;margin-top:10px;box-shadow:0 4px 16px rgba(0,74,153,.22);transition:background .15s}
+.pc-cart-btn-checkout:hover{background:#003c7d}
+.pc-cart-badge{display:inline-flex;align-items:center;justify-content:center;background:#e52727;color:#fff;border-radius:50%;width:18px;height:18px;font-size:.62rem;font-weight:800;margin-left:6px;vertical-align:middle}
+.pc-cart-add-btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:14px;border:none;border-radius:9px;background:#28a745;color:#fff;font-family:Arial,sans-serif;font-size:.9rem;font-weight:700;letter-spacing:.4px;cursor:pointer;margin-top:4px;box-shadow:0 4px 16px rgba(40,167,69,.22);transition:background .15s}
+.pc-cart-add-btn:hover{background:#218838}
+</style>
+
+<div class="pc-wrap">
+  <div class="pc-header">
+    <h2>CALCULADORA DE <span>CORTES</span></h2>
+    <p>Elegí tu plancha, ingresá las medidas que necesitás y comprá con precio al instante</p>
+  </div>
+
+  <!-- SECCIÓN 1: ingreso de piezas -->
+  <div class="pc-card">
+    <div class="pc-label">¿Qué necesitás cortar?</div>
+    <div class="pc-sierra-badge">✂ Sierra de corte: 3 mm incluida en el cálculo</div>
+    <div style="font-size:.68rem;color:#8a8a8a;margin-bottom:10px;">Medida mínima por pieza: 30 × 30 cm</div>
+    <div id="pcPiecesList"></div>
+    <button class="pc-add-btn" onclick="pcAddPiece()">+ Agregar pieza</button>
+    <button class="pc-calc-btn" onclick="pcIniciarWizard()">Calcular layout de cortes</button>
+    <div class="pc-error" id="pcError"></div>
+  </div>
+
+  <!-- SECCIÓN 2: wizard de configuración (aparece al calcular) -->
+  <div id="pcWizardSec" style="display:none;margin-top:20px;">
+    <div class="pc-card">
+      <div id="pcWizHeader"></div>
+      <div id="pcWizBody"></div>
+      <div id="pcWizPrice" style="display:none;"></div>
+    </div>
+  </div>
+
+  <!-- SECCIÓN 3: esquema de cortes (aparece al elegir formato) -->
+  <div id="pcResults" class="pc-card" style="display:none;margin-top:20px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+      <span style="font-size:.6rem;text-transform:uppercase;letter-spacing:1.5px;color:#004a99;font-weight:700;">Diagrama de cortes</span>
+      <button class="pc-pdf-btn" onclick="pcDescargarPDF()">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Descargar PDF
+      </button>
+    </div>
+    <div id="pcResultsContent"></div>
+  </div>
+
+  <!-- CARRITO DE COMPRAS -->
+  <div id="pcCartSec" style="display:none;margin-top:20px;">
+    <div class="pc-card">
+      <div class="pc-label">Carrito de compras <span id="pcCartBadge" class="pc-cart-badge" style="display:none;">0</span></div>
+      <div id="pcCartItems"></div>
+      <div id="pcCartFooter" style="display:none;">
+        <div class="pc-cart-total-row">
+          <span class="pc-cart-total-label">Total estimado · IVA incluido</span>
+          <span class="pc-cart-total-val" id="pcCartTotal">$ 0</span>
+        </div>
+        <button class="pc-cart-btn-add" onclick="pcCartAgregarOtro()">+ Agregar otro tipo de plancha</button>
+        <button class="pc-cart-btn-checkout" onclick="pcoOpen()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+          Comprar todo · Pagar con WebPay
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── Checkout modal ── -->
+<div class="pco-overlay" id="pcoModal">
+  <div class="pco-modal">
+    <div class="pco-mhdr">
+      <h2>FINALIZAR COMPRA</h2>
+      <button class="pco-mclose" onclick="pcoClose()">×</button>
+    </div>
+    <div class="pco-mbody">
+      <div class="pco-steps">
+        <div class="pco-step active" id="pcoDot1"><div class="pco-step-num">1</div><div class="pco-step-lbl">Tus datos</div></div>
+        <div class="pco-step-line" id="pcoLine"></div>
+        <div class="pco-step" id="pcoDot2"><div class="pco-step-num">2</div><div class="pco-step-lbl">Entrega y pago</div></div>
+      </div>
+
+      <!-- PASO 1 -->
+      <div id="pcoS1">
+        <div class="pco-sumbox">
+          <div style="display:flex;justify-content:space-between;align-items:baseline;">
+            <div class="pco-sumbox-ttl">Tu pedido</div>
+            <div id="pcoS1Total" style="font-weight:800;color:#004a99;font-size:1.05rem;">—</div>
+          </div>
+          <div id="pcoS1Items" style="font-size:.79rem;color:#555;margin-top:4px;">—</div>
+        </div>
+        <div class="pco-toggle">
+          <button id="pcoBtnPN" class="active" onclick="pcoSetType('PN')">Persona Natural</button>
+          <button id="pcoBtnEMP" onclick="pcoSetType('EMP')">Empresa</button>
+        </div>
+        <!-- Persona Natural -->
+        <div id="pcoFPN" class="pco-fgrid">
+          <div class="pco-field pco-full"><label>Nombre completo *</label><input type="text" id="pco_pn_nombre" placeholder="Juan Pérez González" oninput="this.classList.remove('pco-e')" onblur="pcoBlur(this)"></div>
+          <div class="pco-field"><label>RUT *</label><input type="text" id="pco_pn_rut" placeholder="12.345.678-9" oninput="pcoFmtRut(this)" onblur="pcoBlur(this)"><div class="pco-ferr" id="pco_pn_rut_e">RUT inválido</div></div>
+          <div class="pco-field"><label>Teléfono *</label><input type="tel" id="pco_pn_tel" value="+56 " oninput="pcoTelIn(this)" onkeydown="pcoTelKd(event,this)" onfocus="pcoTelFocus(this)" onblur="pcoBlur(this)"><div class="pco-ferr" id="pco_pn_tel_e">9 dígitos</div></div>
+          <div class="pco-field pco-full"><label>Email *</label><input type="text" id="pco_pn_email" placeholder="correo@ejemplo.cl" oninput="pcoEmailIn(this)" onblur="pcoBlur(this)"><div class="pco-ferr" id="pco_pn_email_e">Email inválido</div></div>
+          <div class="pco-field pco-full"><label>Dirección de facturación *</label><input type="text" id="pco_pn_dir" placeholder="Av. Ejemplo 1234, Depto 5" oninput="this.classList.remove('pco-e')" onblur="pcoBlur(this)"></div>
+          <div class="pco-field"><label>Región *</label><select id="pco_pn_region" onchange="pcoComunas('pco_pn');this.classList.remove('pco-e');" onblur="pcoBlur(this)"><option value="">Selecciona región...</option><option value="RM">Región Metropolitana</option><option value="XV">Arica y Parinacota</option><option value="I">Tarapacá</option><option value="II">Antofagasta</option><option value="III">Atacama</option><option value="IV">Coquimbo</option><option value="V">Valparaíso</option><option value="VI">O'Higgins</option><option value="VII">Maule</option><option value="XVI">Ñuble</option><option value="VIII">Biobío</option><option value="IX">La Araucanía</option><option value="XIV">Los Ríos</option><option value="X">Los Lagos</option><option value="XI">Aysén</option><option value="XII">Magallanes</option></select></div>
+          <div class="pco-field"><label>Comuna *</label><select id="pco_pn_ciudad" disabled onchange="this.classList.remove('pco-e');" onblur="pcoBlur(this)"><option value="">Selecciona primero la región...</option></select></div>
+        </div>
+        <!-- Empresa -->
+        <div id="pcoFEMP" class="pco-fgrid" style="display:none;">
+          <div class="pco-field"><label>RUT Empresa *</label><input type="text" id="pco_emp_rut" placeholder="76.543.210-K" oninput="pcoFmtRut(this)" onblur="pcoBlur(this)"><div class="pco-ferr" id="pco_emp_rut_e">RUT inválido</div></div>
+          <div class="pco-field pco-full"><label>Razón Social *</label><input type="text" id="pco_emp_razon" placeholder="Empresa Ejemplo SpA" oninput="this.classList.remove('pco-e')" onblur="pcoBlur(this)"></div>
+          <div class="pco-field"><label>Giro *</label><input type="text" id="pco_emp_giro" placeholder="Comercio al por mayor" oninput="this.classList.remove('pco-e')" onblur="pcoBlur(this)"></div>
+          <div class="pco-field"><label>Teléfono *</label><input type="tel" id="pco_emp_tel" value="+56 " oninput="pcoTelIn(this)" onkeydown="pcoTelKd(event,this)" onfocus="pcoTelFocus(this)" onblur="pcoBlur(this)"><div class="pco-ferr" id="pco_emp_tel_e">9 dígitos</div></div>
+          <div class="pco-field pco-full"><label>Email *</label><input type="text" id="pco_emp_email" placeholder="contacto@empresa.cl" oninput="pcoEmailIn(this)" onblur="pcoBlur(this)"><div class="pco-ferr" id="pco_emp_email_e">Email inválido</div></div>
+          <div class="pco-field pco-full"><label>Dirección *</label><input type="text" id="pco_emp_dir" placeholder="Av. Ejemplo 1234, Oficina 5" oninput="this.classList.remove('pco-e')" onblur="pcoBlur(this)"></div>
+          <div class="pco-field"><label>Región *</label><select id="pco_emp_region" onchange="pcoComunas('pco_emp');this.classList.remove('pco-e');" onblur="pcoBlur(this)"><option value="">Selecciona región...</option><option value="RM">Región Metropolitana</option><option value="XV">Arica y Parinacota</option><option value="I">Tarapacá</option><option value="II">Antofagasta</option><option value="III">Atacama</option><option value="IV">Coquimbo</option><option value="V">Valparaíso</option><option value="VI">O'Higgins</option><option value="VII">Maule</option><option value="XVI">Ñuble</option><option value="VIII">Biobío</option><option value="IX">La Araucanía</option><option value="XIV">Los Ríos</option><option value="X">Los Lagos</option><option value="XI">Aysén</option><option value="XII">Magallanes</option></select></div>
+          <div class="pco-field"><label>Comuna *</label><select id="pco_emp_ciudad" disabled onchange="this.classList.remove('pco-e');" onblur="pcoBlur(this)"><option value="">Selecciona primero la región...</option></select></div>
+        </div>
+        <div class="pco-ferr-msg" id="pcoS1Err"></div>
+        <button class="pco-btn-next" onclick="pcoStep2()">Continuar — Elegir entrega <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg></button>
+      </div>
+
+      <!-- PASO 2 -->
+      <div id="pcoS2" style="display:none;">
+        <div class="pco-sdiv">Resumen del pedido</div>
+        <div class="pco-sumbox"><div class="pco-sumbox-ttl">Tu pedido</div><div id="pcoS2Items"></div></div>
+        <div class="pco-sdiv">Entrega</div>
+        <div id="pcoRgnCheck" style="display:none;margin-bottom:14px;">
+          <div style="font-size:.78rem;color:#5a5a5a;padding:10px 14px;background:#f0f4fb;border-radius:8px;border-left:3px solid #004a99;margin-bottom:10px;">Tu pedido califica para <strong>despacho gratuito</strong> en comunas de la RM.</div>
+          <div class="pco-etitle">¿En qué región estás?</div>
+          <select id="pcoRgnPre" onchange="pcoRgnPreChk()" style="width:100%;padding:10px 12px;background:#f7f9fd;border:1.5px solid #ccd8ee;border-radius:8px;color:#1a1a2e;font-family:Arial,sans-serif;font-size:.86rem;outline:none;-webkit-appearance:none;appearance:none;"><option value="">Selecciona tu región...</option><option value="RM">Región Metropolitana</option><option value="XV">Arica y Parinacota</option><option value="I">Tarapacá</option><option value="II">Antofagasta</option><option value="III">Atacama</option><option value="IV">Coquimbo</option><option value="V">Valparaíso</option><option value="VI">O'Higgins</option><option value="VII">Maule</option><option value="XVI">Ñuble</option><option value="VIII">Biobío</option><option value="IX">La Araucanía</option><option value="XIV">Los Ríos</option><option value="X">Los Lagos</option><option value="XI">Aysén</option><option value="XII">Magallanes</option></select>
+          <div id="pcoRgnMsg" style="display:none;margin-top:8px;padding:10px 14px;background:#fff3cd;border-left:3px solid #f59e0b;border-radius:6px;font-size:.75rem;color:#856404;">El despacho gratis aplica solo para la RM.</div>
+          <div id="pcoCmnCheck" style="display:none;margin-top:10px;">
+            <div class="pco-etitle">¿En qué comuna estás?</div>
+            <select id="pcoCmnPre" onchange="pcoCmnPreChk()" style="width:100%;padding:10px 12px;background:#f7f9fd;border:1.5px solid #ccd8ee;border-radius:8px;color:#1a1a2e;font-family:Arial,sans-serif;font-size:.86rem;outline:none;-webkit-appearance:none;appearance:none;"><option value="">Selecciona tu comuna...</option></select>
+            <div id="pcoCmnMsg" style="display:none;margin-top:8px;padding:10px 14px;background:#fff3cd;border-left:3px solid #f59e0b;border-radius:6px;font-size:.75rem;color:#856404;">Esta comuna no tiene despacho gratis.</div>
+          </div>
+        </div>
+        <div class="pco-etitle" id="pcoEtitulo" style="display:none;">¿Cómo recibís tu pedido?</div>
+        <div class="pco-eopts" id="pcoEopts"></div>
+        <div class="pco-infobox pco-infobox-retiro" id="pcoRetiroInfo"><div class="pco-infobox-ttl">Dirección de retiro</div><div class="pco-infobox-body"><div><strong>Santiago Concha 1525, Santiago</strong></div><div>Lunes a jueves · 9:00 a 18:00 hrs</div><div>Viernes · 9:00 a 17:00 hrs</div><div style="margin-top:6px;font-size:.76rem;color:#666;">Coordina al +56 9 4208 6751</div></div></div>
+        <div class="pco-infobox pco-infobox-envio" id="pcoEnvioInfo"><div class="pco-infobox-ttl">Envío gestionado por ti</div><div class="pco-infobox-body"><div>Tu contratas el transporte desde:</div><div style="margin-left:14px;"><strong>Santiago Concha 1525, Santiago</strong></div><div style="margin-top:5px;">Coordina al +56 9 4208 6751 · Lun–Jue 9–18 hrs, Vie 9–17 hrs</div></div></div>
+        <div id="pcoAddrSec" style="display:none;">
+          <div class="pco-addr-ttl">Dirección de despacho</div>
+          <div class="pco-fgrid">
+            <div class="pco-field"><label>Región *</label><select id="pco_dep_region" onchange="pcoComunas('pco_dep');pcoRecalcDesp()"><option value="">Selecciona región...</option><option value="RM">Región Metropolitana</option><option value="XV">Arica y Parinacota</option><option value="I">Tarapacá</option><option value="II">Antofagasta</option><option value="III">Atacama</option><option value="IV">Coquimbo</option><option value="V">Valparaíso</option><option value="VI">O'Higgins</option><option value="VII">Maule</option><option value="XVI">Ñuble</option><option value="VIII">Biobío</option><option value="IX">La Araucanía</option><option value="XIV">Los Ríos</option><option value="X">Los Lagos</option><option value="XI">Aysén</option><option value="XII">Magallanes</option></select></div>
+            <div class="pco-field"><label>Comuna *</label><select id="pco_dep_ciudad" disabled onchange="pcoRecalcDesp()"><option value="">Selecciona primero la región...</option></select></div>
+            <div class="pco-field pco-full"><label>Dirección *</label><input type="text" id="pco_dep_dir" placeholder="Av. Ejemplo 1234, Depto 5"></div>
+          </div>
+        </div>
+        <div class="pco-sdiv">Pago seguro</div>
+        <div class="pco-ferr-msg" id="pcoS2Err">Elige una modalidad de entrega para continuar.</div>
+        <div class="pco-mtotal"><span>Total a pagar</span><div style="text-align:right;"><strong id="pcoMTotal">$0</strong><div style="font-size:.63rem;color:rgba(255,255,255,.75);font-weight:700;margin-top:2px;">IVA incluido</div></div></div>
+        <button class="pco-btn-wp" id="pcoBtnWP" onclick="pcoSubmit()" disabled style="opacity:.55;cursor:not-allowed;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>PAGAR CON WEBPAY PLUS</button>
+        <p class="pco-wpnote">Pago 100% seguro · Tarjetas de crédito y débito · SSL</p>
+        <button class="pco-btn-back" onclick="pcoStep1()"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>Volver a mis datos</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Fuente central de precios — editar en panel-admin.html -->
+<!-- Para producción: cambiar src a https://polyplas.cl/polyplas-datos.js -->
+<script src="../precios - polyplas bloque/polyplas-datos.js"></script>
+<script>
+(function(){
+
+/* ── Estado ── */
+var pcWiz={step:0,pieces:[],quality:null,matType:null,matKey:null,dimKey:null,esp:null,colorId:null,dimMix:null,dimMixIdx:-1};
+var pcCart=[];
+var pcCartIdSeq=0;
+var pcPieceCount=0;
+var pcWizMixOptions=[];
+var pcoOrderSpec=null;
+
+/* ── Colores visuales ── */
+var pcColorSwatches = {
+  'clear':            { border:'#9dc3e8', img:'https://polyplas.cl/wp-content/uploads/2026/05/plancha-de-acrilico-color-transparente.webp' },
+  'blanca':           { border:'#c8c8c8', img:'https://polyplas.cl/wp-content/uploads/2026/05/plancha-de-acrilico-color-blanco-lechoso.webp' },
+  'negra':            { border:'#444',    img:'https://polyplas.cl/wp-content/uploads/2026/05/plancha-de-acrilico-color-negro.webp' },
+  'fluor_verde':      { border:'#00bb00', img:'https://polyplas.cl/wp-content/uploads/2025/08/ChatGPT-Image-7-ago-2025-10_23_00.png' },
+  'fluor_rojo':       { border:'#cc0000', img:'https://polyplas.cl/wp-content/uploads/2025/08/ChatGPT-Image-7-ago-2025-10_22_30.png' },
+  'espejo_dorado':    { border:'#a07820', img:'https://polyplas.cl/wp-content/uploads/2025/08/ChatGPT-Image-7-ago-2025-10_22_44.png' },
+  'espejo_plateado':  { border:'#999',    img:'https://polyplas.cl/wp-content/uploads/2025/08/Imagen-de-WhatsApp-2025-08-06-a-las-15.27.13_6a95ab3d.jpg' },
+  'natural':          { border:'#b0d8f0', img:'https://polyplas.cl/wp-content/uploads/2026/06/planchas-policarbonato-compacto-scaled-e1781062815275.webp' }
+};
+
+/* ── Datos de productos ── */
+var pcProducts = {
+  reciclado: { name:'AA · Reciclado', tipo:'AA', dims:[
+    {key:'180_120', label:'180 × 120 cm', w:180, h:120, priceKey:'1800x1200', colors:[
+      {id:'clear',           label:'Transparente / Clear',espesores:['2mm','3mm','4mm','5mm','6mm','8mm','10mm']},
+      {id:'blanca',          label:'Blanco Lechoso',      espesores:['2mm','3mm','4mm','5mm','6mm','8mm']},
+      {id:'negra',           label:'Negra',               espesores:['3mm']},
+      {id:'fluor_verde',     label:'Flúor Verde',         espesores:['3mm']},
+      {id:'fluor_rojo',      label:'Flúor Rojo',          espesores:['3mm']},
+      {id:'espejo_dorado',   label:'Espejo Dorado',       espesores:['3mm']},
+      {id:'espejo_plateado', label:'Espejo Plateado',     espesores:['3mm']}
+    ]},
+    {key:'240_120', label:'240 × 120 cm', w:240, h:120, priceKey:'2400x1200', colors:[
+      {id:'clear',  label:'Transparente / Clear', espesores:['2mm','3mm','4mm','5mm','6mm','8mm','10mm']},
+      {id:'blanca', label:'Blanco Lechoso',        espesores:['2mm','3mm','4mm','5mm','6mm','8mm']}
+    ]},
+    {key:'200_150', label:'200 × 150 cm', w:200, h:150, priceKey:'2000x1500', colors:[
+      {id:'clear',  label:'Transparente / Clear', espesores:['3mm','4mm','5mm','6mm','8mm','10mm']},
+      {id:'blanca', label:'Blanco Lechoso',        espesores:['3mm','4mm','5mm','6mm','8mm']}
+    ]},
+    {key:'240_180', label:'240 × 180 cm', w:240, h:180, priceKey:'2400x1800', colors:[
+      {id:'clear',  label:'Transparente / Clear', espesores:['3mm','4mm','5mm','6mm','8mm','10mm']},
+      {id:'blanca', label:'Blanco Lechoso',        espesores:['3mm','4mm','5mm','6mm','8mm']},
+      {id:'negra',  label:'Negra',                 espesores:['3mm']}
+    ]},
+    {key:'300_200', label:'300 × 200 cm', w:300, h:200, priceKey:'3000x2000', colors:[
+      {id:'clear',  label:'Transparente / Clear', espesores:['3mm','4mm','5mm','6mm','8mm','10mm']},
+      {id:'blanca', label:'Blanco Lechoso',        espesores:['3mm','4mm','5mm','6mm','8mm','10mm']}
+    ]}
+  ]},
+  virgen: { name:'PA · 100% Virgen', tipo:'PA', dims:[
+    {key:'180_120', label:'180 × 120 cm', w:180, h:120, priceKey:'1800x1200', colors:[
+      {id:'clear',  label:'Transparente / Clear', espesores:['2mm','3mm','4mm','5mm','6mm','8mm','10mm']},
+      {id:'blanca', label:'Blanco Lechoso',       espesores:['2mm','3mm','4mm','5mm','6mm','8mm','10mm']}
+    ]},
+    {key:'244_122', label:'244 × 122 cm', w:244, h:122, priceKey:'2440x1220', colors:[
+      {id:'clear',  label:'Transparente / Clear', espesores:['2mm','3mm','4mm','5mm','6mm','8mm','10mm']},
+      {id:'blanca', label:'Blanco Lechoso',       espesores:['2mm','3mm','4mm','5mm','6mm','8mm','10mm']}
+    ]},
+    {key:'240_180', label:'240 × 180 cm', w:240, h:180, priceKey:'2400x1800', colors:[
+      {id:'clear',  label:'Transparente / Clear', espesores:['3mm','4mm','5mm','6mm','8mm','10mm']},
+      {id:'blanca', label:'Blanco Lechoso',       espesores:['3mm','4mm','5mm','6mm','8mm','10mm']},
+      {id:'negra',  label:'Negra',                espesores:['3mm']}
+    ]},
+    {key:'200_150', label:'200 × 150 cm', w:200, h:150, priceKey:'2000x1500', colors:[
+      {id:'clear',  label:'Transparente / Clear', espesores:['3mm','4mm','5mm','6mm','8mm','10mm']},
+      {id:'blanca', label:'Blanco Lechoso',       espesores:['3mm','4mm','5mm','6mm','8mm']}
+    ]},
+    {key:'300_200', label:'300 × 200 cm', w:300, h:200, priceKey:'3000x2000', colors:[
+      {id:'clear',  label:'Transparente / Clear', espesores:['3mm','4mm','5mm','6mm','8mm','10mm']},
+      {id:'blanca', label:'Blanco Lechoso',       espesores:['3mm','4mm','5mm','6mm','8mm','10mm']}
+    ]}
+  ]},
+  policarbonato: { name:'Policarbonato Compacto', tipo:'PC', dims:[
+    {key:'3005_2005', label:'300.5 × 200.5 cm', w:300.5, h:200.5, priceKey:'3005x2005', colors:[
+      {id:'natural', label:'Natural / Transparente', espesores:['3mm','4mm','6mm']}
+    ]}
+  ]},
+  pet: { name:'PET', tipo:'PET', dims:[
+    {key:'244_122', label:'244 × 122 cm', w:244, h:122, priceKey:'2440x1220', colors:[
+      {id:'clear', label:'Clear / Transparente', espesores:['1mm']}
+    ]}
+  ]},
+  petg: { name:'PETG', tipo:'PETG', dims:[
+    {key:'244_122', label:'244 × 122 cm', w:244, h:122, priceKey:'2440x1220', colors:[
+      {id:'clear', label:'Clear / Transparente', espesores:['0.75mm','2mm']}
+    ]},
+    {key:'300_200', label:'300 × 200 cm', w:300, h:200, priceKey:'3000x2000', colors:[
+      {id:'clear', label:'Clear / Transparente', espesores:['3mm']}
+    ]}
+  ]}
+};
+
+// pcPrices se construye desde polyplas-datos.js (fuente central de precios)
+// Los precios de cada módulo se usan directamente (ya incluyen IVA)
+var pcPrices = (function() {
+  var D = window.POLYPLAS_DATA;
+  if (!D) {
+    // Fallback si polyplas-datos.js no está cargado
+    return {
+      AA: {
+        '1800x1200': { clear:{'2mm':23800,'3mm':34000,'4mm':44000,'5mm':56000,'6mm':66000,'8mm':88500,'10mm':110200}, blanca:{'2mm':24890,'3mm':35600,'4mm':46100,'5mm':58700,'6mm':69200,'8mm':92825}, negra:{'3mm':38000}, fluor_verde:{'3mm':41000}, fluor_rojo:{'3mm':41000}, espejo_dorado:{'3mm':48900}, espejo_plateado:{'3mm':48900} },
+        '2400x1200': { clear:{'2mm':30500,'3mm':44850,'4mm':59300,'5mm':72000,'6mm':89000,'8mm':121000,'10mm':150000}, blanca:{'2mm':29000,'3mm':46993,'4mm':62165,'5mm':75500,'6mm':93350,'8mm':126950} },
+        '2400x1800': { clear:{'3mm':65000,'4mm':86000,'5mm':107000,'6mm':128000,'8mm':170000,'10mm':214000}, blanca:{'3mm':68150,'4mm':90200,'5mm':112250,'6mm':134300,'8mm':178400}, negra:{'3mm':74000} },
+        '2000x1500': { clear:{'3mm':45500,'4mm':60000,'5mm':83200,'6mm':99400,'8mm':138700,'10mm':170000}, blanca:{'3mm':47675,'4mm':70145,'5mm':87260,'6mm':104270,'8mm':146000} },
+        '3000x2000': { clear:{'3mm':89000,'4mm':118000,'5mm':164300,'6mm':196800,'8mm':275300,'10mm':337900}, blanca:{'3mm':93350,'4mm':123800,'5mm':172415,'6mm':206540,'8mm':288965,'10mm':361413} }
+      },
+      PA: {
+        '1800x1200': { clear:{'2mm':26416,'3mm':37840,'4mm':49040,'5mm':62480,'6mm':73680,'8mm':98880,'10mm':123184}, blanca:{'2mm':27650,'3mm':39630,'4mm':51400,'5mm':65500,'6mm':77260,'8mm':103720,'10mm':174400} },
+        '2440x1220': { clear:{'2mm':32700,'3mm':47900,'4mm':64100,'5mm':76900,'6mm':91000,'8mm':117100,'10mm':151900}, blanca:{'2mm':33920,'3mm':49990,'4mm':66170,'5mm':80400,'6mm':99440,'8mm':135280,'10mm':167760} },
+        '2400x1800': { clear:{'3mm':72560,'4mm':96080,'5mm':119600,'6mm':143120,'8mm':190160,'10mm':237200}, blanca:{'3mm':76100,'4mm':100780,'5mm':125480,'6mm':150200,'8mm':199600,'10mm':346700}, negra:{'3mm':76400} },
+        '2000x1500': { clear:{'3mm':50720,'4mm':66960,'5mm':92888,'6mm':111088,'8mm':155048,'10mm':190104}, blanca:{'3mm':53150,'4mm':70200,'5mm':97430,'6mm':116540,'8mm':162700} },
+        '3000x2000': { clear:{'3mm':99440,'4mm':131920,'5mm':183776,'6mm':220176,'8mm':308096,'10mm':378208}, blanca:{'3mm':104300,'4mm':138400,'5mm':192800,'6mm':231000,'8mm':323400,'10mm':397200} }
+      },
+      PC:   { '3005x2005': { natural: {'3mm':190876,'4mm':259658,'6mm':388178} } },
+      PET:  { '2440x1220': { clear: {'1mm':23000} } },
+      PETG: { '2440x1220': { clear: {'0.75mm':29000,'2mm':54000} }, '3000x2000': { clear: {'3mm':151000} } }
+    };
+  }
+  // Combinar precios de todos los materiales desde POLYPLAS_DATA
+  var all = {};
+  function merge(section) {
+    if (!section || !section.prices) return;
+    for (var tipo in section.prices) {
+      if (!all[tipo]) all[tipo] = {};
+      for (var dim in section.prices[tipo]) {
+        if (!all[tipo][dim]) all[tipo][dim] = {};
+        for (var color in section.prices[tipo][dim]) {
+          all[tipo][dim][color] = Object.assign({}, section.prices[tipo][dim][color]);
+        }
+      }
+    }
+  }
+  merge(D.acrilico);
+  merge(D.pet);
+  merge(D.petg);
+  merge(D.pc);
+  return all;
+})();
+
+function pcFindDim(mat, key) {
+  var dims = (pcProducts[mat]||{}).dims||[];
+  for (var i=0;i<dims.length;i++){if(dims[i].key===key)return dims[i];}
+  return null;
+}
+
+/* ── Guillotine Bin Packing (mismo algoritmo que módulo acrilico) ── */
+var pcKERF=0.3; // kerf en cm (= 3mm)
+
+// Siempre empacar en portrait (ancho = lado corto, alto = lado largo)
+function pcPortrait(w,h){return{sw:Math.min(w,h),sh:Math.max(w,h)};}
+
+function pcGFit(sheet,pc,preferH,sh){
+  var bestO=null,bsO=Infinity,bestR=null,bsR=Infinity;
+  for(var ri=0;ri<sheet.free.length;ri++){
+    var r=sheet.free[ri];
+    var ypen=1+2*(r.y/sh);
+    if(r.w>=pc.w&&r.h>=pc.h){var s=Math.min(r.w-pc.w,r.h-pc.h)*ypen;if(s<bsO){bsO=s;bestO={r:r,o:{w:pc.w,h:pc.h},ri:ri};}}
+    if(!pc.fixed&&pc.w!==pc.h){
+      if(r.w>=pc.h&&r.h>=pc.w){var sr=Math.min(r.w-pc.h,r.h-pc.w)*ypen;if(sr<bsR){bsR=sr;bestR={r:r,o:{w:pc.h,h:pc.w},ri:ri};}}
+    }
+  }
+  var best=bestO||bestR;
+  if(!best)return false;
+  var r=best.r,pw=best.o.w,ph=best.o.h;
+  // Formato compatible con pcSvgSheet: w/h incluyen kerf, origW/origH son dims del usuario
+  sheet.placed.push({x:r.x,y:r.y,w:pw+pcKERF,h:ph+pcKERF,origW:pc.ow,origH:pc.oh});
+  sheet.free.splice(best.ri,1);
+  var rightW=r.w-pw-pcKERF,topH=r.h-ph-pcKERF;
+  var splitH=(preferH?topH>=rightW:rightW>=topH);
+  if(splitH){
+    if(rightW>pcKERF)sheet.free.push({x:r.x+pw+pcKERF,y:r.y,w:rightW,h:r.h});
+    if(topH>pcKERF)sheet.free.push({x:r.x,y:r.y+ph+pcKERF,w:pw,h:topH});
+  }else{
+    if(topH>pcKERF)sheet.free.push({x:r.x,y:r.y+ph+pcKERF,w:r.w,h:topH});
+    if(rightW>pcKERF)sheet.free.push({x:r.x+pw+pcKERF,y:r.y,w:rightW,h:ph});
+  }
+  return true;
+}
+function pcGPackOrder(all,sw,sh,preferH){
+  var sheets=[],unplaced=[];
+  all.forEach(function(pc){
+    var placed=false;
+    for(var i=0;i<sheets.length&&!placed;i++)placed=pcGFit(sheets[i],pc,preferH,sh);
+    if(!placed){var ns={free:[{x:0,y:0,w:sw,h:sh}],placed:[]};if(pcGFit(ns,pc,preferH,sh))sheets.push(ns);else unplaced.push(pc);}
+  });
+  return{sheets:sheets,unplaced:unplaced};
+}
+function pcPackSheets(pieces,sw,sh){
+  var sorts=[
+    function(a,b){return(b.w*b.h)-(a.w*a.h);},
+    function(a,b){return Math.max(b.w,b.h)-Math.max(a.w,a.h);},
+    function(a,b){return(b.w+b.h)-(a.w+a.h);},
+    function(a,b){return b.w-a.w;},
+    function(a,b){return b.h-a.h;}
+  ];
+  // Probar combinaciones de rotación (solo piezas más anchas que altas)
+  var rotCombos=[[]];
+  pieces.forEach(function(p,pi){
+    if(p.w>p.h){var nc=[];rotCombos.forEach(function(c){nc.push(c);nc.push(c.concat([pi]));});rotCombos=nc;}
+  });
+  var best=null,bestKey=null;
+  rotCombos.forEach(function(rotSet){
+    var rotMap={};rotSet.forEach(function(i){rotMap[i]=true;});
+    sorts.forEach(function(sortFn){
+      [false,true].forEach(function(preferH){
+        var all=[];
+        pieces.forEach(function(p,pi){
+          var doRot=!!rotMap[pi],pw=doRot?p.h:p.w,ph=doRot?p.w:p.h;
+          for(var i=0;i<p.qty;i++)all.push({w:pw,h:ph,fixed:doRot,ow:p.w,oh:p.h});
+        });
+        all.sort(sortFn);
+        var res=pcGPackOrder(all,sw,sh,preferH);
+        // Evaluar calidad: menos planchas > menos no-colocadas > menos columnas > más uniforme
+        var colCount=0,minUtil=1;
+        res.sheets.forEach(function(s){
+          var xs={};s.placed.forEach(function(p){xs[p.x]=1;});colCount+=Object.keys(xs).length;
+          Object.keys(xs).forEach(function(cx){
+            cx=Number(cx);var bw=0,area=0;
+            s.placed.forEach(function(p){if(p.x===cx){var pw=p.w-pcKERF;if(pw>bw)bw=pw;area+=pw*(p.h-pcKERF);}});
+            var u=area/(bw*sh);if(u<minUtil)minUtil=u;
+          });
+        });
+        var key=[res.sheets.length,res.unplaced.length,colCount,-minUtil];
+        if(!bestKey||key[0]<bestKey[0]||(key[0]===bestKey[0]&&key[1]<bestKey[1])||(key[0]===bestKey[0]&&key[1]===bestKey[1]&&key[2]<bestKey[2])||(key[0]===bestKey[0]&&key[1]===bestKey[1]&&key[2]===bestKey[2]&&key[3]<bestKey[3])){best=res;bestKey=key;}
+      });
+    });
+  });
+  return best||{sheets:[],unplaced:pieces.reduce(function(a,p){for(var i=0;i<p.qty;i++)a.push(p);return a;}, [])};
+}
+
+/* ── Helpers espesor / precio mínimo ── */
+function pcGetAllEspesores(matKey){
+  var tipo=(pcProducts[matKey]||{}).tipo;
+  var seen={},res=[];
+  ((pcProducts[matKey]||{}).dims||[]).forEach(function(d){
+    d.colors.forEach(function(c){
+      c.espesores.forEach(function(e){
+        if(seen[e])return;
+        var hasP=pcPrices[tipo]&&pcPrices[tipo][d.priceKey]&&pcPrices[tipo][d.priceKey][c.id]&&pcPrices[tipo][d.priceKey][c.id][e];
+        if(hasP){seen[e]=true;res.push(e);}
+      });
+    });
+  });
+  res.sort(function(a,b){return parseFloat(a)-parseFloat(b);});
+  return res;
+}
+function pcGetColorOptionsForEsp(matKey,esp){
+  var tipo=(pcProducts[matKey]||{}).tipo;
+  var seen={},res=[];
+  ((pcProducts[matKey]||{}).dims||[]).forEach(function(d){
+    d.colors.forEach(function(c){
+      if(seen[c.id]||c.espesores.indexOf(esp)===-1)return;
+      var hasP=pcPrices[tipo]&&pcPrices[tipo][d.priceKey]&&pcPrices[tipo][d.priceKey][c.id]&&pcPrices[tipo][d.priceKey][c.id][esp];
+      if(hasP){seen[c.id]=true;res.push({colorId:c.id,colorLabel:c.label});}
+    });
+  });
+  return res;
+}
+function pcGetCheapestPrice(tipo,priceKey,esp){
+  var p=pcPrices[tipo]&&pcPrices[tipo][priceKey];if(!p)return null;
+  var min=null;
+  Object.keys(p).forEach(function(color){var v=p[color][esp];if(v&&(min===null||v<min))min=v;});
+  return min;
+}
+
+/* ── Mix de formatos ── */
+function pcFindMixOptions(pieces,matKey){
+  var dims=(pcProducts[matKey]||{}).dims||[];
+  if(dims.length<2)return[];
+  var sorted=dims.slice().sort(function(a,b){return(b.w*b.h)-(a.w*a.h);});
+  var results=[];
+  for(var pi=0;pi<sorted.length-1;pi++){
+    var pDim=sorted[pi];
+    var pPo=pcPortrait(pDim.w,pDim.h);
+    var pPack=pcPackSheets(pieces,pPo.sw,pPo.sh);
+    var N=pPack.sheets.length;
+    if(N<2||pPack.unplaced.length>0)continue;
+    var lastSh=pPack.sheets[N-1];
+    var grp={};
+    lastSh.placed.forEach(function(p){var k=p.origW+'_'+p.origH;if(!grp[k])grp[k]={w:p.origW,h:p.origH,qty:0};grp[k].qty++;});
+    var lastPcs=Object.keys(grp).map(function(k){return grp[k];});
+    var pureUsed=0;
+    pPack.sheets.forEach(function(s){s.placed.forEach(function(it){pureUsed+=it.origW*it.origH;});});
+    var pureWaste=100-(pureUsed/(pDim.w*pDim.h*N))*100;
+    for(var si=pi+1;si<sorted.length;si++){
+      var sDim=sorted[si];
+      var sPo=pcPortrait(sDim.w,sDim.h);
+      var sPack=pcPackSheets(lastPcs,sPo.sw,sPo.sh);
+      if(sPack.unplaced.length>0)continue;
+      var totalSh=(N-1)+sPack.sheets.length;
+      var usedArea=0;
+      pPack.sheets.slice(0,N-1).forEach(function(s){s.placed.forEach(function(it){usedArea+=it.origW*it.origH;});});
+      sPack.sheets.forEach(function(s){s.placed.forEach(function(it){usedArea+=it.origW*it.origH;});});
+      var totalArea=pDim.w*pDim.h*(N-1)+sDim.w*sDim.h*sPack.sheets.length;
+      var waste=totalArea>0?100-(usedArea/totalArea)*100:0;
+      if(waste<pureWaste-0.5||totalSh<N){
+        results.push({
+          primDim:pDim,primCount:N-1,primPack:pPack,
+          secDim:sDim,secCount:sPack.sheets.length,secPack:sPack,
+          totalSheets:totalSh,waste:waste,pureWaste:pureWaste,
+          label:(N-1)+' × '+pDim.label+' + '+sPack.sheets.length+' × '+sDim.label
+        });
+      }
+    }
+  }
+  results.sort(function(a,b){return a.waste-b.waste;});
+  return results.slice(0,3);
+}
+
+/* ── Wizard helpers ── */
+function pcGetMatKey(quality,matType){
+  if(matType==='acrilico')return quality==='PA'?'virgen':'reciclado';
+  if(matType==='pet')return 'pet';
+  return matType;
+}
+
+function pcGetEspesores(matKey,dimKey){
+  var seen={},res=[];
+  ((pcProducts[matKey]||{}).dims||[]).forEach(function(d){
+    if(d.key!==dimKey)return;
+    d.colors.forEach(function(c){c.espesores.forEach(function(e){if(!seen[e]){seen[e]=true;res.push(e);}});});
+  });
+  res.sort(function(a,b){return parseFloat(a)-parseFloat(b);});
+  return res;
+}
+
+function pcGetColorOptions(matKey,dimKey,esp){
+  var res=[];
+  ((pcProducts[matKey]||{}).dims||[]).forEach(function(d){
+    if(d.key!==dimKey)return;
+    d.colors.forEach(function(c){if(c.espesores.indexOf(esp)!==-1)res.push({colorId:c.id,colorLabel:c.label});});
+  });
+  return res;
+}
+
+/* ── Piezas ── */
+function pcAddPiece(w,h,qty){
+  pcPieceCount++;var id=pcPieceCount;
+  var div=document.createElement('div');div.className='pc-piece';div.id='pcPiece'+id;
+  div.innerHTML='<div class="pc-piece-grid">'+
+    '<div><div class="pc-piece-mini">Ancho cm</div><input type="number" min="30" step="0.1" value="'+(w||'')+'" id="pcW'+id+'" oninput="this.style.borderColor=\'\'"></div>'+
+    '<div><div class="pc-piece-mini">Alto cm</div><input type="number" min="30" step="0.1" value="'+(h||'')+'" id="pcH'+id+'" oninput="this.style.borderColor=\'\'"></div>'+
+    '<div><div class="pc-piece-mini">Cant.</div><input type="number" min="1" value="'+(qty||1)+'" id="pcQ'+id+'"></div>'+
+    '<button class="pc-piece-del" onclick="pcRemovePiece('+id+')" title="Quitar">×</button>'+
+  '</div>';
+  document.getElementById('pcPiecesList').appendChild(div);
+}
+function pcRemovePiece(id){var el=document.getElementById('pcPiece'+id);if(el)el.remove();}
+
+/* ── Wizard ── */
+function pcIniciarWizard(){
+  var errEl=document.getElementById('pcError');errEl.style.display='none';
+  var pieces=[];var hasInvalid=false;
+  document.querySelectorAll('.pc-piece').forEach(function(div){
+    var id=div.id.replace('pcPiece','');
+    var wEl=document.getElementById('pcW'+id);var hEl=document.getElementById('pcH'+id);
+    var w=parseFloat(wEl.value);var h=parseFloat(hEl.value);
+    var q=parseInt(document.getElementById('pcQ'+id).value,10);
+    if(w>0&&h>0&&q>0){
+      var tooSmall=(w<30||h<30);
+      wEl.style.borderColor=tooSmall?'#e53e3e':'';
+      hEl.style.borderColor=tooSmall?'#e53e3e':'';
+      if(tooSmall){hasInvalid=true;}else{pieces.push({w:w,h:h,qty:q});}
+    }
+  });
+  if(hasInvalid){errEl.textContent='El mínimo de corte es 30 × 30 cm. Ajustá las piezas marcadas en rojo.';errEl.style.display='block';return;}
+  if(!pieces.length){errEl.textContent='Agregá al menos una pieza con medidas válidas.';errEl.style.display='block';return;}
+  pcWiz={step:1,pieces:pieces,quality:null,matType:null,matKey:null,dimKey:null,esp:null,colorId:null};
+  document.getElementById('pcResults').style.display='none';
+  document.getElementById('pcResultsContent').innerHTML='';
+  var sec=document.getElementById('pcWizardSec');sec.style.display='block';
+  setTimeout(function(){sec.scrollIntoView({behavior:'smooth',block:'start'});},50);
+  pcWizRender();
+}
+
+function pcWizRender(){
+  pcWizRenderBar();
+  var body=document.getElementById('pcWizBody');body.innerHTML='';
+  var div=document.createElement('div');div.className='pc-wiz-body';
+  if(pcWiz.step===1)div.innerHTML=pcWizBodyStep1();
+  else if(pcWiz.step===2)div.innerHTML=pcWizBodyStep2();
+  else if(pcWiz.step===3)div.innerHTML=pcWizBodyStep3();
+  else if(pcWiz.step===4)div.innerHTML=pcWizBodyStep4Color();
+  body.appendChild(div);
+  var priceEl=document.getElementById('pcWizPrice');if(priceEl)priceEl.style.display='none';
+}
+
+function pcWizRenderBar(){
+  var steps=['Calidad','Material','Formato','Color'];
+  var dispStep=pcWiz.step<=3?pcWiz.step:4;
+  var h=document.getElementById('pcWizHeader');h.innerHTML='';
+  var bar=document.createElement('div');bar.className='pc-wiz-bar';
+  steps.forEach(function(s,i){
+    var n=i+1;
+    var stepEl=document.createElement('div');stepEl.className='pc-wiz-step';
+    stepEl.innerHTML='<div class="pc-wiz-dot'+(dispStep>n?' done':dispStep===n?' active':'')+'">'+(dispStep>n?'✓':n)+'</div>'+
+      '<div class="pc-wiz-lbl'+(dispStep>n?' done':dispStep===n?' active':'')+'">'+s+'</div>';
+    bar.appendChild(stepEl);
+    if(i<3){var line=document.createElement('div');line.className='pc-wiz-line'+(dispStep>n?' done':'');bar.appendChild(line);}
+  });
+  h.appendChild(bar);
+}
+
+function pcWizBodyStep1(){
+  var qualities=[
+    {key:'PA',name:'PA · 100% Virgen',desc:'Acrílico, PC, PET, PETG<br>Calidad premium'},
+    {key:'AA',name:'AA · Reciclado',desc:'Acrílico, PC, PET, PETG<br>Precio accesible'}
+  ];
+  var html='<div class="pc-wiz-title">Paso 1 · Calidad</div><div class="pc-mat-type-grid">';
+  qualities.forEach(function(q){
+    html+='<div class="pc-mat-type-card'+(pcWiz.quality===q.key?' active':'')+'" onclick="pcWizSelectQuality(\''+q.key+'\')">'+
+      '<div class="pc-mat-type-name">'+q.name+'</div>'+
+      '<div class="pc-mat-type-desc">'+q.desc+'</div>'+
+    '</div>';
+  });
+  return html+'</div>';
+}
+
+function pcWizBodyStep2(){
+  var mats=[
+    {key:'acrilico',icon:'🔵',name:'Acrílico',desc:'Clear, Blanco, Negro, Fluor, Espejo'},
+    {key:'policarbonato',icon:'🟦',name:'Policarbonato Compacto',desc:'Alta resistencia al impacto'},
+    {key:'pet',icon:'🟩',name:'PET',desc:'Transparente · Alta claridad'},
+    {key:'petg',icon:'🟧',name:'PETG',desc:'Más resistente que PET'}
+  ];
+  var html='<div class="pc-wiz-title">Paso 2 · Tipo de material</div><div class="pc-mat-type-grid">';
+  mats.forEach(function(m){
+    html+='<div class="pc-mat-type-card'+(pcWiz.matType===m.key?' active':'')+'" onclick="pcWizSelectType(\''+m.key+'\')">'+
+      '<div class="pc-mat-type-icon">'+m.icon+'</div>'+
+      '<div class="pc-mat-type-name">'+m.name+'</div>'+
+      '<div class="pc-mat-type-desc">'+m.desc+'</div>'+
+    '</div>';
+  });
+  return html+'</div><button class="pc-wiz-back" onclick="pcWizGoBack()">← Volver</button>';
+}
+
+function pcWizBodyStep3(){
+  var matKey=pcWiz.matKey;
+  var dims=(pcProducts[matKey]||{}).dims||[];
+  var tipo=(pcProducts[matKey]||{}).tipo;
+  var iguales=pcCortesIguales(pcWiz.pieces);
+  var allEsps=pcGetAllEspesores(matKey);
+  pcWizMixOptions=pcFindMixOptions(pcWiz.pieces,matKey);
+
+  var html='<div class="pc-wiz-title">Paso 3 · Formato</div>';
+
+  // ── 1) Espesor ──
+  html+='<div style="margin-bottom:16px;">'+
+    '<div style="font-size:.65rem;text-transform:uppercase;letter-spacing:1.5px;color:#004a99;font-weight:700;margin-bottom:8px;">1 · Espesor</div>'+
+    '<div class="pc-esp-grid">';
+  allEsps.forEach(function(e){
+    html+='<button class="pc-esp-btn'+(pcWiz.esp===e?' active':'')+'" onclick="pcWizSelectEsp(\''+e+'\')">'+e+'</button>';
+  });
+  html+='</div></div>';
+
+  if(!pcWiz.esp){
+    html+='<div class="pcc-al al-info" style="font-size:.76rem;">Elegí un espesor para continuar.</div>';
+    return html+'<button class="pc-wiz-back" onclick="pcWizGoBack()">← Volver</button>';
+  }
+
+  // ── 2) Color ──
+  var colorOpts=pcGetColorOptionsForEsp(matKey,pcWiz.esp);
+  if(colorOpts.length===1&&!pcWiz.colorId){
+    setTimeout(function(){pcWizSelectColorInStep3(colorOpts[0].colorId);},10);
+    return html+'<div style="padding:10px;text-align:center;color:#666;font-size:.82rem;">Un momento...</div>';
+  }
+  html+='<div style="margin-bottom:16px;">'+
+    '<div style="font-size:.65rem;text-transform:uppercase;letter-spacing:1.5px;color:#004a99;font-weight:700;margin-bottom:8px;">2 · Color</div>'+
+    '<div class="pc-combo-grid">';
+  colorOpts.forEach(function(opt){
+    var sw=pcColorSwatches[opt.colorId]||{border:'#ccc'};
+    var isActive=(pcWiz.colorId===opt.colorId);
+    var imgStyle=sw.img?'background-image:url('+sw.img+');':'background:#e0e0e0;';
+    html+='<div class="pc-combo-card'+(isActive?' active':'')+'" onclick="pcWizSelectColorInStep3(\''+opt.colorId+'\')">'+
+      '<div class="pc-combo-img" style="'+imgStyle+'border-color:'+sw.border+'"></div>'+
+      '<div class="pc-combo-color-name">'+opt.colorLabel+'</div>'+
+    '</div>';
+  });
+  html+='</div></div>';
+
+  if(!pcWiz.colorId){
+    html+='<div class="pcc-al al-info" style="font-size:.76rem;">Elegí un color para ver el precio exacto de cada formato.</div>';
+    return html+'<button class="pc-wiz-back" onclick="pcWizGoBack()">← Volver</button>';
+  }
+
+  // ── 3) Formato con precio exacto ──
+  var packs={},dimPrices={},allTotals=[];
+  dims.forEach(function(d){
+    var po=pcPortrait(d.w,d.h);
+    var pack=pcPackSheets(pcWiz.pieces,po.sw,po.sh);
+    packs[d.key]=pack;
+    if(pack.unplaced.length>0){dimPrices[d.key]=null;return;}
+    var N=pack.sheets.length;
+    var unitP=(pcPrices[tipo]&&pcPrices[tipo][d.priceKey]&&pcPrices[tipo][d.priceKey][pcWiz.colorId])?pcPrices[tipo][d.priceKey][pcWiz.colorId][pcWiz.esp]:null;
+    if(unitP){var sub=unitP*N;var tot=sub+pcCartCalcCorteFee(sub,iguales);dimPrices[d.key]=tot;allTotals.push(tot);}
+    else dimPrices[d.key]=null;
+  });
+  var mixPrices=[];
+  pcWizMixOptions.forEach(function(mix,idx){
+    var pp=(pcPrices[tipo]&&pcPrices[tipo][mix.primDim.priceKey]&&pcPrices[tipo][mix.primDim.priceKey][pcWiz.colorId])?pcPrices[tipo][mix.primDim.priceKey][pcWiz.colorId][pcWiz.esp]:null;
+    var sp=(pcPrices[tipo]&&pcPrices[tipo][mix.secDim.priceKey]&&pcPrices[tipo][mix.secDim.priceKey][pcWiz.colorId])?pcPrices[tipo][mix.secDim.priceKey][pcWiz.colorId][pcWiz.esp]:null;
+    if(pp&&sp){var sub=(pp*mix.primCount)+(sp*mix.secCount);var tot=sub+pcCartCalcCorteFee(sub,iguales);mixPrices[idx]=tot;allTotals.push(tot);}
+    else mixPrices[idx]=null;
+  });
+  var minPrice=allTotals.length?Math.min.apply(null,allTotals):null;
+
+  html+='<div style="font-size:.65rem;text-transform:uppercase;letter-spacing:1.5px;color:#004a99;font-weight:700;margin-bottom:8px;">3 · Elegí el formato</div>'+
+    '<div class="pc-dim-cards">';
+  dims.forEach(function(d){
+    var tot=dimPrices[d.key];
+    if(tot===null||tot===undefined)return; // ocultar si no hay precio para este combo
+    var pack=packs[d.key];
+    var sheets=pack.sheets.length;var unplaced=pack.unplaced.length;
+    if(unplaced>0)return; // no caben todas las piezas
+    var usedArea=0;pack.sheets.forEach(function(s){s.placed.forEach(function(it){usedArea+=it.origW*it.origH;});});
+    var totalArea=d.w*d.h*sheets;
+    var waste=totalArea>0?(100-(usedArea/totalArea)*100):0;
+    var wc=waste<20?'pc-waste-low':(waste<40?'pc-waste-mid':'pc-waste-high');
+    var isBest=tot===minPrice;
+    var isActive=pcWiz.dimKey===d.key&&!pcWiz.dimMix;
+    var brd=isActive?'#004a99':isBest?'#86efac':'#dde4ef';
+    var bg=isActive?'#eef3fc':isBest?'#f0fdf4':'#fff';
+    html+='<div class="pc-dim-card'+(isActive?' active':'')+'" style="border-color:'+brd+';background:'+bg+';" onclick="pcWizSelectDim(\''+d.key+'\')">'+
+      (isBest?'<div style="font-size:.58rem;font-weight:800;color:#16a34a;letter-spacing:.5px;margin-bottom:4px;">✓ MEJOR PRECIO</div>':'')+
+      '<div class="pc-dim-card-label">'+d.label+'</div>'+
+      '<div class="pc-dim-card-sheets">'+sheets+'</div>'+
+      '<div class="pc-dim-card-sub">plancha(s) necesarias</div>'+
+      '<div style="font-size:.72rem;margin-top:5px;"><span class="'+wc+'">'+waste.toFixed(0)+'% desperdicio</span></div>'+
+      '<div style="font-size:.9rem;font-weight:800;color:'+(isBest?'#16a34a':'#004a99')+';margin-top:6px;">$'+tot.toLocaleString('es-CL')+'</div>'+
+    '</div>';
+  });
+  html+='</div>';
+
+  if(pcWizMixOptions.length>0){
+    html+='<div style="margin-top:16px;">'+
+      '<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">'+
+        '<span style="font-size:.62rem;text-transform:uppercase;letter-spacing:1.5px;font-weight:700;color:#856404;">Mix de formatos · menos desperdicio</span>'+
+        '<span style="flex:1;height:1px;background:#fde68a;"></span>'+
+      '</div><div class="pc-dim-cards">';
+    pcWizMixOptions.forEach(function(mix,idx){
+      var tot=mixPrices[idx];
+      if(tot===null||tot===undefined)return; // ocultar si falta precio para alguno de los dos formatos
+      var wc=mix.waste<20?'pc-waste-low':(mix.waste<40?'pc-waste-mid':'pc-waste-high');
+      var savings=mix.pureWaste-mix.waste;
+      var isActive=!!(pcWiz.dimMix&&pcWiz.dimMixIdx===idx);
+      var isBest=tot===minPrice;
+      var brd=isActive?'#f59e0b':isBest?'#86efac':'#fde68a';
+      var bg=isActive?'#fefce8':isBest?'#f0fdf4':'#fffbeb';
+      html+='<div class="pc-dim-card'+(isActive?' active':'')+'" style="border-color:'+brd+';background:'+bg+';" onclick="pcWizSelectMix('+idx+')">'+
+        '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">'+
+          '<span style="font-size:.58rem;font-weight:800;color:#856404;letter-spacing:.5px;">✦ MIX</span>'+
+          (isBest?'<span style="font-size:.58rem;font-weight:800;color:#16a34a;">✓ MEJOR PRECIO</span>':'')+
+        '</div>'+
+        '<div class="pc-dim-card-label" style="font-size:.74rem;line-height:1.5;">'+mix.primCount+' × '+mix.primDim.label+'<br>+ '+mix.secCount+' × '+mix.secDim.label+'</div>'+
+        '<div class="pc-dim-card-sheets">'+mix.totalSheets+'</div>'+
+        '<div class="pc-dim-card-sub">planchas en total</div>'+
+        '<div style="font-size:.72rem;margin-top:5px;"><span class="'+wc+'">'+mix.waste.toFixed(0)+'% desperdicio</span></div>'+
+        '<div style="font-size:.9rem;font-weight:800;color:'+(isBest?'#16a34a':'#856404')+';margin-top:6px;">$'+tot.toLocaleString('es-CL')+'</div>'+
+        (savings>0.5?'<div style="font-size:.65rem;color:#28a745;margin-top:3px;font-weight:700;">↓ ahorra '+savings.toFixed(0)+'% desperdicio</div>':'')+
+      '</div>';
+    });
+    html+='</div></div>';
+  }
+
+  return html+'<button class="pc-wiz-back" onclick="pcWizGoBack()">← Volver</button>';
+}
+
+function pcWizBodyStep4Color(){
+  // Espesor + color ya seleccionados en paso 3. El precio se muestra en pcWizPrice.
+  return '<button class="pc-wiz-back" onclick="pcWizGoBack()" style="margin-top:4px;">← Cambiar formato</button>';
+}
+
+function pcWizSelectQuality(q){pcWiz.quality=q;pcWiz.matType=null;pcWiz.matKey=null;pcWiz.dimKey=null;pcWiz.dimMix=null;pcWiz.dimMixIdx=-1;pcWiz.esp=null;pcWiz.colorId=null;pcWiz.step=2;pcWizRender();}
+function pcWizSelectType(t){pcWiz.matType=t;pcWiz.matKey=pcGetMatKey(pcWiz.quality,t);pcWiz.dimKey=null;pcWiz.dimMix=null;pcWiz.dimMixIdx=-1;pcWiz.esp=null;pcWiz.colorId=null;pcWiz.step=3;pcWizRender();}
+function pcWizSelectEsp(esp){pcWiz.esp=esp;pcWiz.colorId=null;pcWiz.dimKey=null;pcWiz.dimMix=null;pcWiz.dimMixIdx=-1;pcWizRender();}
+function pcWizSelectColorInStep3(colorId){pcWiz.colorId=colorId;pcWiz.dimKey=null;pcWiz.dimMix=null;pcWiz.dimMixIdx=-1;pcWizRender();}
+function pcWizSelectDim(dkey){pcWiz.dimKey=dkey;pcWiz.dimMix=null;pcWiz.dimMixIdx=-1;pcShowLayout(dkey);if(pcWiz.esp&&pcWiz.colorId){pcWiz.step=4;pcWizRender();pcWizShowPrice();}else{pcWizRender();}}
+function pcWizSelectMix(idx){var mix=pcWizMixOptions[idx];if(!mix)return;pcWiz.dimKey=null;pcWiz.dimMix=mix;pcWiz.dimMixIdx=idx;pcShowMixLayout(mix);if(pcWiz.esp&&pcWiz.colorId){pcWiz.step=4;pcWizRender();pcWizShowPrice();}else{pcWizRender();}}
+function pcWizSelectColor(colorId){pcWiz.colorId=colorId;pcWizShowPrice();}
+
+function pcWizGoBack(){
+  pcWiz.step=Math.max(1,pcWiz.step-1);
+  if(pcWiz.step===1){pcWiz.quality=null;pcWiz.matType=null;pcWiz.matKey=null;pcWiz.dimKey=null;pcWiz.dimMix=null;pcWiz.dimMixIdx=-1;pcWiz.esp=null;pcWiz.colorId=null;}
+  else if(pcWiz.step===2){pcWiz.matType=null;pcWiz.matKey=null;pcWiz.dimKey=null;pcWiz.dimMix=null;pcWiz.dimMixIdx=-1;pcWiz.esp=null;pcWiz.colorId=null;}
+  else if(pcWiz.step===3){pcWiz.dimKey=null;pcWiz.dimMix=null;pcWiz.dimMixIdx=-1;}
+  // step 4 → step 3: conserva esp+color para ver precios al volver, solo limpia el formato
+  pcWizRender();
+}
+
+/* ── Layout SVG helpers ── */
+var pcPAL=['#3b82f6','#10b981','#f59e0b','#8b5cf6','#ef4444','#06b6d4','#f97316','#ec4899'];
+function pcCmap(pieces){
+  var m={},i=0;
+  pieces.forEach(function(p){var k=p.w+'x'+p.h;if(!m[k]){m[k]=pcPAL[i%pcPAL.length];i++;}m[p.h+'x'+p.w]=m[k];});
+  return m;
+}
+function pcSvgSheet(sh,sw,shh,cm){
+  var KERF=0.3;
+  var fsH=Math.max(1.8,Math.round(Math.min(sw,shh)*0.028));
+  var TPAD=Math.max(2.5,Math.round(fsH*1.0));
+  var vw=sw, vh=shh+TPAD+0.3;
+  var s='<svg viewBox="0 0 '+vw+' '+vh+'" style="width:100%;height:auto;display:block;" xmlns="http://www.w3.org/2000/svg">';
+  s+='<rect x="0" y="'+TPAD+'" width="'+sw+'" height="'+shh+'" fill="#dce3ee" rx="0.2" stroke="#9ab" stroke-width="0.2"/>';
+  var colXs=[];
+  sh.placed.forEach(function(p){var cx=Math.round(p.x*10)/10;if(colXs.indexOf(cx)<0)colXs.push(cx);});
+  colXs.sort(function(a,b){return a-b;});
+  var colBands=[],prevX=0;
+  colXs.forEach(function(cx){
+    if(cx>prevX+KERF+0.05)colBands.push({x:prevX,w:cx-prevX,waste:true});
+    var bw=0;sh.placed.forEach(function(p){if(Math.round(p.x*10)/10===cx&&(p.w-KERF)>bw)bw=p.w-KERF;});
+    colBands.push({x:cx,w:bw,waste:false});
+    prevX=cx+bw;
+  });
+  if(prevX<sw-KERF-0.05)colBands.push({x:prevX,w:sw-prevX,waste:true});
+  colBands.forEach(function(band){
+    var cx=band.x+band.w/2;
+    s+='<text x="'+cx+'" y="'+(TPAD-0.4)+'" text-anchor="middle" font-family="Arial" font-size="'+fsH+'" fill="'+(band.waste?'#aab5c8':'#374151')+'" font-weight="'+(band.waste?'400':'700')+'">'+Math.round(band.w)+'</text>';
+  });
+  sh.placed.forEach(function(p){
+    var pw=p.w-KERF, ph=p.h-KERF;
+    var labelW=Math.round(pw), labelH=Math.round(ph);
+    var col=cm[labelW+'x'+labelH]||'#3b82f6';
+    var px=p.x, py=TPAD+p.y;
+    var fsP=Math.max(1.4,Math.round(Math.min(pw,ph)*0.13));
+    s+='<rect x="'+px+'" y="'+py+'" width="'+pw+'" height="'+ph+'" fill="'+col+'" fill-opacity="0.22" stroke="'+col+'" stroke-opacity="0.85" stroke-width="0.15" rx="0.1"/>';
+    if(pw>5&&ph>3.5){
+      var cx=px+pw/2, cy=py+ph/2;
+      s+='<text x="'+cx+'" y="'+cy+'" text-anchor="middle" dominant-baseline="middle" font-family="Arial" font-size="'+fsP+'" fill="#1a1a2e" font-weight="700">'+labelW+'×'+labelH+'</text>';
+    }
+  });
+  s+='<rect x="0" y="'+TPAD+'" width="'+sw+'" height="'+shh+'" fill="none" stroke="#445" stroke-width="0.2"/>';
+  return s+'</svg>';
+}
+
+function pcShowLayout(dimKey){
+  var dim=null;
+  Object.keys(pcProducts).forEach(function(k){if(!dim)(pcProducts[k].dims||[]).forEach(function(d){if(d.key===dimKey)dim=d;});});
+  if(!dim)return;
+  var po=pcPortrait(dim.w,dim.h);
+  var result=pcPackSheets(pcWiz.pieces,po.sw,po.sh);
+  document.getElementById('pcResults').style.display='block';
+  var content=document.getElementById('pcResultsContent');
+  var totalPieces=pcWiz.pieces.reduce(function(a,p){return a+p.qty;},0);
+  var placed=totalPieces-result.unplaced.length;
+  var sheetArea=po.sw*po.sh;
+  var usedArea=0;result.sheets.forEach(function(s){s.placed.forEach(function(it){usedArea+=it.origW*it.origH;});});
+  var totalArea=sheetArea*result.sheets.length;
+  var wastePct=totalArea>0?(100-(usedArea/totalArea)*100):0;
+  var wc=wastePct<20?'pc-waste-low':(wastePct<40?'pc-waste-mid':'pc-waste-high');
+  var Nsh=result.sheets.length;
+  var html='<div class="pcc-stats">'+
+    '<div class="pcc-stat"><div class="n">'+Nsh+'</div><div class="l">Planchas</div></div>'+
+    '<div class="pcc-stat"><div class="n">'+placed+'/'+totalPieces+'</div><div class="l">Piezas</div></div>'+
+    '<div class="pcc-stat"><div class="n '+wc+'">'+wastePct.toFixed(0)+'%</div><div class="l">Desperdicio</div></div>'+
+  '</div>';
+  if(result.unplaced.length>0)html+='<div class="pcc-al al-err">&#9888; '+result.unplaced.length+' pieza(s) no entran en este formato.</div>';
+  html+=wastePct<20?'<div class="pcc-al al-ok">&#10003; Excelente aprovechamiento &mdash; '+wastePct.toFixed(0)+'% desperdicio</div>':
+    wastePct<40?'<div class="pcc-al al-warn">&#9888; '+wastePct.toFixed(0)+'% de desperdicio.</div>':
+    '<div class="pcc-al al-err">&#9888; '+wastePct.toFixed(0)+'% desperdicio alto. Revisa las medidas.</div>';
+  if(Nsh>0){
+    var cm=pcCmap(pcWiz.pieces);
+    var seen={},ley='<div class="pcc-ley">';
+    pcWiz.pieces.forEach(function(p){var k=p.w+'x'+p.h;if(!seen[k]){seen[k]=true;ley+='<span><i style="background:'+cm[k]+'"></i>'+p.w+' &times; '+p.h+' cm</span>';}});
+    ley+='</div>';
+    var DIAG_PREVIEW=2;
+    html+='<div class="pcc-viz-lbl">Como quedan en la plancha</div>'+ley;
+    html+='<div class="pcc-sheets-grid">';
+    result.sheets.slice(0,DIAG_PREVIEW).forEach(function(sheet,idx){
+      var hdr=Nsh>1?'<div class="pcc-svg-hdr"><span class="pcc-svg-hdr-n">Plancha '+(idx+1)+'</span><span class="pcc-svg-hdr-dim">'+po.sw+' &times; '+po.sh+' cm</span></div>':'';
+      html+='<div class="pcc-svg-w">'+hdr+'<div class="pcc-svg-body">'+pcSvgSheet(sheet,po.sw,po.sh,cm)+'</div></div>';
+    });
+    html+='</div>';
+    if(Nsh>DIAG_PREVIEW){
+      html+='<details class="pcc-more-sheets"><summary>Ver '+(Nsh-DIAG_PREVIEW)+' plancha'+(Nsh-DIAG_PREVIEW===1?'':'s')+' m&aacute;s</summary>'+
+        '<div class="pcc-sheets-grid">';
+      result.sheets.slice(DIAG_PREVIEW).forEach(function(sheet,i){
+        var n=DIAG_PREVIEW+i+1;
+        html+='<div class="pcc-svg-w"><div class="pcc-svg-hdr"><span class="pcc-svg-hdr-n">Plancha '+n+'</span><span class="pcc-svg-hdr-dim">'+po.sw+' &times; '+po.sh+' cm</span></div><div class="pcc-svg-body">'+pcSvgSheet(sheet,po.sw,po.sh,cm)+'</div></div>';
+      });
+      html+='</div></details>';
+    }
+  }
+  content.innerHTML=html;
+  setTimeout(function(){document.getElementById('pcResults').scrollIntoView({behavior:'smooth',block:'start'});},80);
+}
+
+function pcShowMixLayout(mix){
+  document.getElementById('pcResults').style.display='block';
+  var content=document.getElementById('pcResultsContent');
+  var totalPieces=pcWiz.pieces.reduce(function(a,p){return a+p.qty;},0);
+  var wc=mix.waste<20?'pc-waste-low':(mix.waste<40?'pc-waste-mid':'pc-waste-high');
+  var cm=pcCmap(pcWiz.pieces);
+  var seen={},ley='<div class="pcc-ley">';
+  pcWiz.pieces.forEach(function(p){var k=p.w+'x'+p.h;if(!seen[k]){seen[k]=true;ley+='<span><i style="background:'+cm[k]+'"></i>'+p.w+' &times; '+p.h+' cm</span>';}});
+  ley+='</div>';
+  var html='<div class="pcc-stats">'+
+    '<div class="pcc-stat"><div class="n">'+mix.totalSheets+'</div><div class="l">Planchas</div></div>'+
+    '<div class="pcc-stat"><div class="n">'+totalPieces+'/'+totalPieces+'</div><div class="l">Piezas</div></div>'+
+    '<div class="pcc-stat"><div class="n '+wc+'">'+mix.waste.toFixed(0)+'%</div><div class="l">Desperdicio</div></div>'+
+  '</div>';
+  html+='<div class="pcc-al al-info" style="font-size:.75rem;">Mix: '+mix.label+'</div>';
+  html+='<div class="pcc-viz-lbl">Como quedan en las planchas</div>'+ley;
+  var pPo=pcPortrait(mix.primDim.w,mix.primDim.h);
+  var sPo=pcPortrait(mix.secDim.w,mix.secDim.h);
+  var idx=0;
+  html+='<div class="pcc-sheets-grid">';
+  if(mix.primCount>0){
+    mix.primPack.sheets.slice(0,mix.primCount).forEach(function(sh){
+      idx++;
+      html+='<div class="pcc-svg-w"><div class="pcc-svg-hdr"><span class="pcc-svg-hdr-n">Plancha '+idx+'</span><span class="pcc-svg-hdr-dim">'+mix.primDim.label+'</span></div><div class="pcc-svg-body">'+pcSvgSheet(sh,pPo.sw,pPo.sh,cm)+'</div></div>';
+    });
+  }
+  mix.secPack.sheets.forEach(function(sh){
+    idx++;
+    html+='<div class="pcc-svg-w"><div class="pcc-svg-hdr"><span class="pcc-svg-hdr-n">Plancha '+idx+'</span><span class="pcc-svg-hdr-dim">'+mix.secDim.label+'</span></div><div class="pcc-svg-body">'+pcSvgSheet(sh,sPo.sw,sPo.sh,cm)+'</div></div>';
+  });
+  html+='</div>';
+  content.innerHTML=html;
+  setTimeout(function(){document.getElementById('pcResults').scrollIntoView({behavior:'smooth',block:'start'});},80);
+}
+
+/* ── Carrito ── */
+function pcCartCalcCorteFee(subtotal,iguales){
+  if(iguales)return 0;
+  var neto=Math.round(subtotal/1.19);
+  var recargo=Math.round(neto*0.10);
+  var nuevoNeto=neto+recargo;
+  return(nuevoNeto+Math.round(nuevoNeto*0.19))-subtotal;
+}
+
+function pcCartRender(){
+  var sec=document.getElementById('pcCartSec');
+  var itemsEl=document.getElementById('pcCartItems');
+  var footerEl=document.getElementById('pcCartFooter');
+  var badge=document.getElementById('pcCartBadge');
+  if(!pcCart.length){if(sec)sec.style.display='none';return;}
+  if(sec)sec.style.display='block';
+  if(badge){badge.textContent=pcCart.length;badge.style.display='inline-flex';}
+  var grand=pcCart.reduce(function(s,i){return s+i.total;},0);
+  if(itemsEl)itemsEl.innerHTML=pcCart.map(function(item){
+    var corteStr=item.iguales
+      ?'<div style="font-size:.7rem;color:#28a745;margin-top:4px;">✂ Cortes iguales — servicio de corte GRATIS</div>'
+      :'<div style="font-size:.7rem;color:#c0392b;margin-top:4px;">✂ Servicio de corte (distintos): +'+pcoFmt(item.cargoCorteFee)+'</div>';
+    var subLine=item.isMix
+      ?'<div style="font-size:.68rem;color:#856404;margin-top:2px;font-weight:700;">✦ Mix: '+item.mix.label+'</div>'+
+        '<div class="pc-cart-item-sub">'+item.mix.primCount+' × '+item.mix.primDim.label+' + '+item.mix.secCount+' × '+item.mix.secDim.label+'</div>'
+      :'<div class="pc-cart-item-sub">'+item.sheets+' plancha(s) × '+pcoFmt(item.unitPrice)+(item.sheets>1?' = '+pcoFmt(item.unitPrice*item.sheets):'')+' </div>';
+    return '<div class="pc-cart-item">'+
+      '<button class="pc-cart-item-del" onclick="pcCartRemoveItem('+item.id+')" title="Quitar">×</button>'+
+      '<div class="pc-cart-item-spec">'+item.specStr+'</div>'+
+      subLine+
+      corteStr+
+      '<div class="pc-cart-item-footer">'+
+        '<div style="font-size:.68rem;color:#8a8a8a;">'+item.pieces.length+' tipo(s) de pieza</div>'+
+        '<div class="pc-cart-item-total">'+pcoFmt(item.total)+'</div>'+
+      '</div>'+
+    '</div>';
+  }).join('');
+  var totalEl=document.getElementById('pcCartTotal');
+  if(totalEl)totalEl.textContent=pcoFmt(grand);
+  if(footerEl)footerEl.style.display='block';
+}
+
+function pcCartAddItem(){
+  var prod=pcProducts[pcWiz.matKey];if(!prod)return;
+  var tipo=prod.tipo;
+  var iguales=pcCortesIguales(pcWiz.pieces);
+
+  if(pcWiz.dimMix){
+    var mix=pcWiz.dimMix;
+    var primPrice=(pcPrices[tipo]&&pcPrices[tipo][mix.primDim.priceKey]&&pcPrices[tipo][mix.primDim.priceKey][pcWiz.colorId])?pcPrices[tipo][mix.primDim.priceKey][pcWiz.colorId][pcWiz.esp]:null;
+    var secPrice=(pcPrices[tipo]&&pcPrices[tipo][mix.secDim.priceKey]&&pcPrices[tipo][mix.secDim.priceKey][pcWiz.colorId])?pcPrices[tipo][mix.secDim.priceKey][pcWiz.colorId][pcWiz.esp]:null;
+    if(!primPrice||!secPrice)return;
+    var subtotalMix=(primPrice*mix.primCount)+(secPrice*mix.secCount);
+    var cargoCorteMix=pcCartCalcCorteFee(subtotalMix,iguales);
+    var totalMix=subtotalMix+cargoCorteMix;
+    var pDim=pcFindDim(pcWiz.matKey,mix.primDim.key);
+    var colorLabel='';if(pDim)pDim.colors.forEach(function(c){if(c.id===pcWiz.colorId)colorLabel=c.label;});
+    pcCartIdSeq++;
+    pcCart.push({
+      id:pcCartIdSeq,isMix:true,
+      matKey:pcWiz.matKey,dimKey:null,esp:pcWiz.esp,colorId:pcWiz.colorId,
+      mix:{primDim:mix.primDim,primCount:mix.primCount,secDim:mix.secDim,secCount:mix.secCount,label:mix.label},
+      sheets:mix.totalSheets,unitPrice:null,subtotal:subtotalMix,
+      iguales:iguales,cargoCorteFee:cargoCorteMix,total:totalMix,
+      matName:prod.name,dimLabel:'Mix: '+mix.label,colorLabel:colorLabel,
+      specStr:prod.name+' · '+colorLabel+' · Mix · '+pcWiz.esp,
+      pieces:pcWiz.pieces.map(function(p){return{w:p.w,h:p.h,qty:p.qty};})
+    });
+    document.getElementById('pcWizardSec').style.display='none';
+    pcWiz={step:0,pieces:[],quality:null,matType:null,matKey:null,dimKey:null,esp:null,colorId:null,dimMix:null,dimMixIdx:-1};
+    pcCartRender();
+    var sec=document.getElementById('pcCartSec');
+    if(sec)setTimeout(function(){sec.scrollIntoView({behavior:'smooth',block:'start'});},60);
+    return;
+  }
+
+  var dim=pcFindDim(pcWiz.matKey,pcWiz.dimKey);if(!dim)return;
+  var _p2=pcPortrait(dim.w,dim.h);
+  var result=pcPackSheets(pcWiz.pieces,_p2.sw,_p2.sh);
+  var sheets=result.sheets.length;
+  var colorLabel2='';dim.colors.forEach(function(c){if(c.id===pcWiz.colorId)colorLabel2=c.label;});
+  var unitPrice=(pcPrices[tipo]&&pcPrices[tipo][dim.priceKey]&&pcPrices[tipo][dim.priceKey][pcWiz.colorId])?pcPrices[tipo][dim.priceKey][pcWiz.colorId][pcWiz.esp]:null;
+  if(!unitPrice)return;
+  var subtotal=unitPrice*sheets;
+  var cargoCorteFee=pcCartCalcCorteFee(subtotal,iguales);
+  var total=subtotal+cargoCorteFee;
+  pcCartIdSeq++;
+  pcCart.push({
+    id:pcCartIdSeq,
+    matKey:pcWiz.matKey,dimKey:pcWiz.dimKey,esp:pcWiz.esp,colorId:pcWiz.colorId,
+    sheets:sheets,unitPrice:unitPrice,subtotal:subtotal,
+    iguales:iguales,cargoCorteFee:cargoCorteFee,total:total,
+    matName:prod.name,dimLabel:dim.label,colorLabel:colorLabel2,
+    specStr:prod.name+' · '+colorLabel2+' · '+dim.label+' · '+pcWiz.esp,
+    pieces:pcWiz.pieces.map(function(p){return{w:p.w,h:p.h,qty:p.qty};})
+  });
+  document.getElementById('pcWizardSec').style.display='none';
+  pcWiz={step:0,pieces:[],quality:null,matType:null,matKey:null,dimKey:null,esp:null,colorId:null,dimMix:null,dimMixIdx:-1};
+  pcCartRender();
+  var sec=document.getElementById('pcCartSec');
+  if(sec)setTimeout(function(){sec.scrollIntoView({behavior:'smooth',block:'start'});},60);
+}
+
+function pcCartRemoveItem(id){
+  pcCart=pcCart.filter(function(i){return i.id!==id;});
+  pcCartRender();
+}
+
+function pcCartAgregarOtro(){
+  var card=document.querySelector('.pc-calc-btn');
+  if(card)card.scrollIntoView({behavior:'smooth',block:'center'});
+}
+
+function pcCortesIguales(pieces){
+  if(!pieces||pieces.length<=1)return true;
+  var w0=pieces[0].w,h0=pieces[0].h;
+  return pieces.every(function(p){return p.w===w0&&p.h===h0;});
+}
+
+function pcPriceComparison(tipo,colorId,esp,iguales){
+  var candidates=[];
+  var dims=(pcProducts[pcWiz.matKey]||{}).dims||[];
+  dims.forEach(function(d){
+    var po=pcPortrait(d.w,d.h);
+    var pack=pcPackSheets(pcWiz.pieces,po.sw,po.sh);
+    if(pack.unplaced.length>0)return;
+    var N=pack.sheets.length;
+    var unitP=(pcPrices[tipo]&&pcPrices[tipo][d.priceKey]&&pcPrices[tipo][d.priceKey][colorId])?pcPrices[tipo][d.priceKey][colorId][esp]:null;
+    if(!unitP)return;
+    var sub=unitP*N;
+    var corte=pcCartCalcCorteFee(sub,iguales);
+    candidates.push({label:N+' × '+d.label,total:sub+corte,isSelected:!pcWiz.dimMix&&pcWiz.dimKey===d.key,isMix:false,dimKey:d.key});
+  });
+  pcWizMixOptions.forEach(function(mix,idx){
+    var primP=(pcPrices[tipo]&&pcPrices[tipo][mix.primDim.priceKey]&&pcPrices[tipo][mix.primDim.priceKey][colorId])?pcPrices[tipo][mix.primDim.priceKey][colorId][esp]:null;
+    var secP=(pcPrices[tipo]&&pcPrices[tipo][mix.secDim.priceKey]&&pcPrices[tipo][mix.secDim.priceKey][colorId])?pcPrices[tipo][mix.secDim.priceKey][colorId][esp]:null;
+    if(!primP||!secP)return;
+    var sub=(primP*mix.primCount)+(secP*mix.secCount);
+    var corte=pcCartCalcCorteFee(sub,iguales);
+    candidates.push({label:mix.label,total:sub+corte,isSelected:!!(pcWiz.dimMix&&pcWiz.dimMixIdx===idx),isMix:true,mixIdx:idx});
+  });
+  if(candidates.length<2)return'';
+  candidates.sort(function(a,b){return a.total-b.total;});
+  var minTotal=candidates[0].total;
+  var html='<div style="border:1px solid #dde4ef;border-radius:10px;padding:14px 16px;margin-bottom:14px;background:#f9fbff;">'+
+    '<div style="font-size:.6rem;text-transform:uppercase;letter-spacing:1.5px;font-weight:700;color:#004a99;margin-bottom:10px;">Comparación · mismo material y espesor</div>';
+  candidates.forEach(function(c){
+    var isBest=c.total===minTotal;
+    var diff=c.total-minTotal;
+    var brd=c.isSelected?'#004a99':isBest?'#86efac':'#e5e7eb';
+    var bg=c.isSelected?'#eef3fc':isBest?'#f0fdf4':'#fff';
+    var clickAttr=c.isSelected?'':' onclick="pcCmpSelect('+(c.isMix?'true,'+c.mixIdx:'false,\''+c.dimKey+'\'')+') "';
+    var cursor=c.isSelected?'':'cursor:pointer;';
+    html+='<div'+clickAttr+' style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;border-radius:8px;margin-bottom:6px;border:1.5px solid '+brd+';background:'+bg+';'+cursor+'">'+
+      '<div style="flex:1;min-width:0;">'+
+        '<div style="font-size:.76rem;font-weight:'+(c.isSelected||isBest?'700':'500')+';color:'+(c.isSelected?'#004a99':'#1f2937')+';white-space:normal;line-height:1.4;">'+
+          (c.isMix?'<span style="font-size:.6rem;font-weight:800;color:#856404;background:#fef9c3;border-radius:4px;padding:1px 5px;margin-right:4px;vertical-align:middle;">MIX</span>':'')+
+          c.label+
+        '</div>'+
+        '<div style="font-size:.62rem;margin-top:2px;font-weight:600;color:'+(isBest?'#16a34a':c.isSelected?'#004a99':'#9ca3af')+'">'+
+          (isBest&&c.isSelected?'✓ Mejor precio · selección actual':isBest?'✓ Mejor precio':c.isSelected?'→ Selección actual':'')+
+        '</div>'+
+      '</div>'+
+      '<div style="text-align:right;flex-shrink:0;margin-left:12px;">'+
+        '<div style="font-size:.95rem;font-weight:800;color:'+(isBest?'#16a34a':'#374151')+';">$'+c.total.toLocaleString('es-CL')+'</div>'+
+        (diff>0?'<div style="font-size:.62rem;color:#9ca3af;">+$'+diff.toLocaleString('es-CL')+'</div>':'')+
+      '</div>'+
+    '</div>';
+  });
+  return html+'</div>';
+}
+
+function pcWizShowPrice(){
+  var prod=pcProducts[pcWiz.matKey];if(!prod)return;
+  var tipo=prod.tipo;
+  var priceEl=document.getElementById('pcWizPrice');priceEl.style.display='block';
+  var waIcon='<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M20.52 3.48A11.93 11.93 0 0 0 12 0C5.37 0 0 5.37 0 12c0 2.11.55 4.16 1.6 5.97L0 24l6.22-1.57A11.94 11.94 0 0 0 12 24c6.63 0 12-5.37 12-12 0-3.2-1.25-6.21-3.48-8.52zM12 22c-1.85 0-3.66-.5-5.23-1.43l-.37-.22-3.69.93.98-3.58-.24-.38A9.94 9.94 0 0 1 2 12C2 6.48 6.48 2 12 2s10 4.48 10 10-4.48 10-10 10zm5.44-7.34c-.3-.15-1.77-.87-2.04-.97-.28-.1-.48-.15-.68.15-.2.3-.77.97-.94 1.17-.17.2-.35.22-.64.07-.3-.15-1.25-.46-2.38-1.47-.88-.78-1.47-1.75-1.64-2.04-.17-.3-.02-.46.13-.6.13-.13.3-.35.44-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.02-.52-.08-.15-.68-1.63-.93-2.23-.24-.58-.49-.5-.68-.51H6.9c-.2 0-.51.07-.78.37-.27.3-1.02 1-1.02 2.43s1.05 2.82 1.19 3.02c.15.2 2.06 3.14 4.99 4.41.7.3 1.24.48 1.67.61.7.22 1.34.19 1.84.12.56-.08 1.77-.72 2.02-1.42.25-.7.25-1.3.17-1.42-.07-.13-.27-.2-.57-.35z"/></svg>';
+  var iguales=pcCortesIguales(pcWiz.pieces);
+
+  // ── Mix de formatos ──
+  if(pcWiz.dimMix){
+    var mix=pcWiz.dimMix;
+    var pDim=pcFindDim(pcWiz.matKey,mix.primDim.key);
+    var colorLabel='';if(pDim)pDim.colors.forEach(function(c){if(c.id===pcWiz.colorId)colorLabel=c.label;});
+    var specStr=prod.name+' · '+colorLabel+' · Mix · '+pcWiz.esp;
+    var primPrice=(pcPrices[tipo]&&pcPrices[tipo][mix.primDim.priceKey]&&pcPrices[tipo][mix.primDim.priceKey][pcWiz.colorId])?pcPrices[tipo][mix.primDim.priceKey][pcWiz.colorId][pcWiz.esp]:null;
+    var secPrice=(pcPrices[tipo]&&pcPrices[tipo][mix.secDim.priceKey]&&pcPrices[tipo][mix.secDim.priceKey][pcWiz.colorId])?pcPrices[tipo][mix.secDim.priceKey][pcWiz.colorId][pcWiz.esp]:null;
+    pcShowMixLayout(mix);
+    var waBase='https://wa.me/56942086751?text='+encodeURIComponent('Hola! Usé la calculadora y necesito un mix: '+mix.label+' de '+specStr+'. Me pueden cotizar?');
+    var comparison=pcPriceComparison(tipo,pcWiz.colorId,pcWiz.esp,iguales);
+    if(primPrice&&secPrice){
+      var primSub=primPrice*mix.primCount;
+      var secSub=secPrice*mix.secCount;
+      var subtotal=primSub+secSub;
+      var cargoCorteFee=pcCartCalcCorteFee(subtotal,iguales);
+      var total=subtotal+cargoCorteFee;
+      var desglose='';
+      if(mix.primCount>0)desglose+='<div style="font-size:.7rem;color:#5a5a5a;margin-bottom:3px;">'+mix.primCount+' plancha(s) '+mix.primDim.label+' × $'+primPrice.toLocaleString('es-CL')+' = $'+primSub.toLocaleString('es-CL')+'</div>';
+      desglose+='<div style="font-size:.7rem;color:#5a5a5a;margin-bottom:3px;">'+mix.secCount+' plancha(s) '+mix.secDim.label+' × $'+secPrice.toLocaleString('es-CL')+' = $'+secSub.toLocaleString('es-CL')+'</div>';
+      if(!iguales){desglose+='<div style="font-size:.7rem;color:#5a5a5a;margin-bottom:3px;">Servicio de corte (10% neto) <span style="color:#c0392b;">+ $'+cargoCorteFee.toLocaleString('es-CL')+'</span></div>';}
+      else{desglose+='<div style="font-size:.7rem;color:#28a745;margin-bottom:3px;">✓ Servicio de corte: GRATIS (cortes iguales)</div>';}
+      priceEl.innerHTML='<div class="pc-divider"></div>'+
+        comparison+
+        '<div class="pc-price-box">'+
+          '<div class="pc-price-label">Precio estimado · IVA incluido</div>'+
+          '<div class="pc-price-spec">'+specStr+'</div>'+
+          desglose+
+          '<div class="pc-price-total-num">$ '+total.toLocaleString('es-CL')+'</div>'+
+          '<div class="pc-price-hint">Mix de formatos: '+mix.label+'. '+(iguales?'Cortes del mismo tamaño — servicio de corte gratis.':'Cortes de distintos tamaños — incluye 10% servicio de corte sobre valor neto.')+'</div>'+
+        '</div>'+
+        '<button class="pc-cart-add-btn" onclick="pcCartAddItem()">'+
+          '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>'+
+          'Agregar al carrito — Mix · $'+total.toLocaleString('es-CL')+
+        '</button>'+
+        '<a class="pc-cta-wa-sec" href="'+waBase+'" target="_blank" rel="noopener">'+waIcon+' o consultar por WhatsApp</a>'+
+        '<button class="pc-wiz-back" onclick="pcWizGoBack()" style="margin-top:14px;">← Cambiar selección</button>';
+    } else {
+      priceEl.innerHTML='<div class="pc-divider"></div>'+
+        comparison+
+        '<div style="text-align:center;padding:12px 0;color:#8a8a8a;font-size:.82rem;">Precio no disponible para este mix en línea.</div>'+
+        '<a class="pc-cta-wa-sec" style="background:#25D366;color:#fff;border-color:#25D366;padding:13px;border-radius:8px;" href="'+waBase+'" target="_blank" rel="noopener">Consultar precio del mix por WhatsApp</a>'+
+        '<button class="pc-wiz-back" onclick="pcWizGoBack()" style="margin-top:14px;">← Cambiar selección</button>';
+    }
+    priceEl.scrollIntoView({behavior:'smooth',block:'center'});
+    return;
+  }
+
+  // ── Formato único ──
+  var dim=pcFindDim(pcWiz.matKey,pcWiz.dimKey);if(!dim)return;
+  var _p3=pcPortrait(dim.w,dim.h);
+  var result=pcPackSheets(pcWiz.pieces,_p3.sw,_p3.sh);
+  var sheets=result.sheets.length;
+  var colorLabel2='';dim.colors.forEach(function(c){if(c.id===pcWiz.colorId)colorLabel2=c.label;});
+  var specStr2=prod.name+' · '+colorLabel2+' · '+dim.label+' · '+pcWiz.esp;
+  var unitPrice=(pcPrices[tipo]&&pcPrices[tipo][dim.priceKey]&&pcPrices[tipo][dim.priceKey][pcWiz.colorId])?pcPrices[tipo][dim.priceKey][pcWiz.colorId][pcWiz.esp]:null;
+  pcShowLayout(pcWiz.dimKey);
+  var waBase2='https://wa.me/56942086751?text='+encodeURIComponent('Hola! Usé la calculadora de cortes y necesito '+sheets+' plancha(s) de '+specStr2+'. Me pueden cotizar?');
+  var comparison2=pcPriceComparison(tipo,pcWiz.colorId,pcWiz.esp,iguales);
+  if(unitPrice){
+    var subtotal2=unitPrice*sheets;
+    var cargoCorteFee2=pcCartCalcCorteFee(subtotal2,iguales);
+    var total2=subtotal2+cargoCorteFee2;
+    var desglose2='<div style="font-size:.7rem;color:#5a5a5a;margin-bottom:4px;">'+sheets+' plancha(s) × $ '+unitPrice.toLocaleString('es-CL')+'</div>';
+    if(!iguales){desglose2+='<div style="font-size:.7rem;color:#5a5a5a;margin-bottom:4px;">Servicio de corte (10% neto) <span style="color:#c0392b;">+ $ '+cargoCorteFee2.toLocaleString('es-CL')+'</span></div>';}
+    else{desglose2+='<div style="font-size:.7rem;color:#28a745;margin-bottom:4px;">✓ Servicio de corte: GRATIS (cortes iguales)</div>';}
+    priceEl.innerHTML='<div class="pc-divider"></div>'+
+      comparison2+
+      '<div class="pc-price-box">'+
+        '<div class="pc-price-label">Precio estimado · IVA incluido</div>'+
+        '<div class="pc-price-spec">'+specStr2+'</div>'+
+        desglose2+
+        '<div class="pc-price-total-num">$ '+total2.toLocaleString('es-CL')+'</div>'+
+        '<div class="pc-price-hint">Precio de lista sin descuentos. '+(iguales?'Cortes del mismo tamaño — servicio de corte gratis.':'Cortes de distintos tamaños — incluye 10% servicio de corte sobre valor neto.')+'</div>'+
+      '</div>'+
+      '<button class="pc-cart-add-btn" onclick="pcCartAddItem()">'+
+        '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>'+
+        'Agregar al carrito — '+sheets+' plancha(s) · $'+total2.toLocaleString('es-CL')+
+      '</button>'+
+      '<a class="pc-cta-wa-sec" href="'+waBase2+'" target="_blank" rel="noopener">'+waIcon+' o consultar por WhatsApp</a>'+
+      '<button class="pc-wiz-back" onclick="pcWizGoBack()" style="margin-top:14px;">← Cambiar selección</button>';
+  } else {
+    priceEl.innerHTML='<div class="pc-divider"></div>'+
+      comparison2+
+      '<div style="text-align:center;padding:12px 0;color:#8a8a8a;font-size:.82rem;">Este producto no tiene precio publicado en línea.</div>'+
+      '<a class="pc-cta-wa-sec" style="background:#25D366;color:#fff;border-color:#25D366;padding:13px;border-radius:8px;" href="'+waBase2+'" target="_blank" rel="noopener">'+
+        '<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M20.52 3.48A11.93 11.93 0 0 0 12 0C5.37 0 0 5.37 0 12c0 2.11.55 4.16 1.6 5.97L0 24l6.22-1.57A11.94 11.94 0 0 0 12 24c6.63 0 12-5.37 12-12 0-3.2-1.25-6.21-3.48-8.52zM12 22c-1.85 0-3.66-.5-5.23-1.43l-.37-.22-3.69.93.98-3.58-.24-.38A9.94 9.94 0 0 1 2 12C2 6.48 6.48 2 12 2s10 4.48 10 10-4.48 10-10 10zm5.44-7.34c-.3-.15-1.77-.87-2.04-.97-.28-.1-.48-.15-.68.15-.2.3-.77.97-.94 1.17-.17.2-.35.22-.64.07-.3-.15-1.25-.46-2.38-1.47-.88-.78-1.47-1.75-1.64-2.04-.17-.3-.02-.46.13-.6.13-.13.3-.35.44-.52.15-.17.2-.3.3-.5.1-.2.05-.37-.02-.52-.08-.15-.68-1.63-.93-2.23-.24-.58-.49-.5-.68-.51H6.9c-.2 0-.51.07-.78.37-.27.3-1.02 1-1.02 2.43s1.05 2.82 1.19 3.02c.15.2 2.06 3.14 4.99 4.41.7.3 1.24.48 1.67.61.7.22 1.34.19 1.84.12.56-.08 1.77-.72 2.02-1.42.25-.7.25-1.3.17-1.42-.07-.13-.27-.2-.57-.35z"/></svg>'+
+        'Consultar precio por WhatsApp'+
+      '</a>'+
+      '<button class="pc-wiz-back" onclick="pcWizGoBack()" style="margin-top:14px;">← Cambiar selección</button>';
+  }
+  priceEl.scrollIntoView({behavior:'smooth',block:'center'});
+}
+
+/* ── Checkout modal ── */
+var PCO_TEL='+56 ';
+var PCO_UMBRAL=350000;
+var PCO_SIN_DESP_RM=['Pirque','San José de Maipo','Tiltil','Buin','Calera de Tango','Paine','Melipilla','Alhué','Curacaví','María Pinto','San Pedro','Talagante','Isla de Maipo','Peñaflor'];
+var PCO_COMUNAS={RM:['Cerrillos','Cerro Navia','Conchalí','El Bosque','Estación Central','Huechuraba','Independencia','La Cisterna','La Florida','La Granja','La Pintana','La Reina','Las Condes','Lo Barnechea','Lo Espejo','Lo Prado','Macul','Maipú','Ñuñoa','Pedro Aguirre Cerda','Peñalolén','Providencia','Pudahuel','Quilicura','Quinta Normal','Recoleta','Renca','San Joaquín','San Miguel','San Ramón','Santiago','Vitacura','Puente Alto','Pirque','San José de Maipo','Colina','Lampa','Tiltil','San Bernardo','Buin','Calera de Tango','Paine','Melipilla','Alhué','Curacaví','María Pinto','San Pedro','Talagante','El Monte','Isla de Maipo','Padre Hurtado','Peñaflor'],XV:['Arica','Camarones','Putre','General Lagos'],I:['Iquique','Alto Hospicio','Pozo Almonte','Camiña','Colchane','Huara','Pica'],II:['Antofagasta','Mejillones','Sierra Gorda','Taltal','Calama','Ollagüe','San Pedro de Atacama','Tocopilla','María Elena'],III:['Copiapó','Caldera','Tierra Amarilla','Chañaral','Diego de Almagro','Vallenar','Alto del Carmen','Freirina','Huasco'],IV:['La Serena','Coquimbo','Andacollo','La Higuera','Paiguano','Vicuña','Illapel','Canela','Los Vilos','Salamanca','Ovalle','Combarbalá','Monte Patria','Punitaqui','Río Hurtado'],V:['Valparaíso','Casablanca','Concón','Juan Fernández','Puchuncaví','Quintero','Viña del Mar','Isla de Pascua','Los Andes','Calle Larga','Rinconada','San Esteban','La Ligua','Cabildo','Papudo','Petorca','Zapallar','Quillota','Calera','Hijuelas','La Cruz','Nogales','San Antonio','Algarrobo','Cartagena','El Quisco','El Tabo','Santo Domingo','San Felipe','Catemu','Llaillay','Panquehue','Putaendo','Santa María','Quilpué','Limache','Olmué','Villa Alemana'],VI:['Rancagua','Codegua','Coinco','Coltauco','Doñihue','Graneros','Las Cabras','Machalí','Malloa','Mostazal','Olivar','Peumo','Pichidegua','Quinta de Tilcoco','Rengo','Requínoa','San Vicente','Pichilemu','La Estrella','Litueche','Marchihue','Navidad','Paredones','San Fernando','Chépica','Chimbarongo','Lolol','Nancagua','Palmilla','Peralillo','Placilla','Pumanque','Santa Cruz'],VII:['Talca','Constitución','Curepto','Empedrado','Maule','Pelarco','Pencahue','Río Claro','San Clemente','San Rafael','Cauquenes','Chanco','Pelluhue','Curicó','Hualañé','Licantén','Molina','Rauco','Romeral','Sagrada Familia','Teno','Vichuquén','Linares','Colbún','Longaví','Parral','Retiro','San Javier','Villa Alegre','Yerbas Buenas'],XVI:['Chillán','Bulnes','Cobquecura','Coelemu','Coihueco','Chillán Viejo','El Carmen','Ninhue','Ñiquén','Pemuco','Pinto','Portezuelo','Quillón','Quirihue','Ránquil','San Carlos','San Fabián','San Ignacio','San Nicolás','Treguaco','Yungay'],VIII:['Concepción','Coronel','Chiguayante','Florida','Hualpén','Hualqui','Lota','Penco','San Pedro de la Paz','Santa Juana','Talcahuano','Tomé','Lebu','Arauco','Cañete','Contulmo','Curanilahue','Los Álamos','Tirúa','Los Ángeles','Antuco','Cabrero','Laja','Mulchén','Nacimiento','Negrete','Quilaco','Quilleco','San Rosendo','Santa Bárbara','Tucapel','Yumbel','Alto Biobío'],IX:['Temuco','Carahue','Cunco','Curarrehue','Freire','Galvarino','Gorbea','Lautaro','Loncoche','Melipeuco','Nueva Imperial','Padre Las Casas','Perquenco','Pitrufquén','Pucón','Saavedra','Teodoro Schmidt','Toltén','Vilcún','Villarrica','Cholchol','Angol','Collipulli','Curacautín','Ercilla','Lonquimay','Los Sauces','Lumaco','Purén','Renaico','Traiguén','Victoria'],XIV:['Valdivia','Corral','Futrono','La Unión','Lago Ranco','Lanco','Los Lagos','Máfil','Mariquina','Paillaco','Panguipulli','Río Bueno'],X:['Puerto Montt','Calbuco','Cochamó','Fresia','Frutillar','Los Muermos','Llanquihue','Maullín','Puerto Varas','Castro','Ancud','Chonchi','Curaco de Vélez','Dalcahue','Puqueldón','Queilén','Quellón','Quemchi','Quinchao','Osorno','Puerto Octay','Purranque','Puyehue','Río Negro','San Juan de la Costa','San Pablo','Chaitén','Futaleufú','Hualaihué','Palena'],XI:['Coyhaique','Lago Verde','Aysén','Cisnes','Guaitecas','Cochrane',"O'Higgins",'Tortel','Chile Chico','Río Ibáñez'],XII:['Punta Arenas','Laguna Blanca','Río Verde','San Gregorio','Cabo de Hornos','Antártica','Porvenir','Primavera','Timaukel','Natales','Torres del Paine']};
+
+var pcoType='PN',pcoEntrega=null,pcoGrand=0;
+function pcoFmt(n){return'$ '+Math.round(n).toLocaleString('es-CL');}
+function pcoSetType(t){pcoType=t;document.getElementById('pcoFPN').style.display=t==='PN'?'grid':'none';document.getElementById('pcoFEMP').style.display=t==='EMP'?'grid':'none';document.getElementById('pcoBtnPN').classList.toggle('active',t==='PN');document.getElementById('pcoBtnEMP').classList.toggle('active',t==='EMP');}
+function pcoTelFocus(el){if(!el.value.startsWith(PCO_TEL))el.value=PCO_TEL;}
+function pcoTelKd(e,el){if((e.key==='Backspace'||e.key==='Delete')&&el.selectionStart<=PCO_TEL.length)e.preventDefault();}
+function pcoTelIn(el){var val=el.value;if(!val.startsWith(PCO_TEL))val=PCO_TEL+val.replace(/^\+?56\s?/,'').replace(/[^0-9]/g,'');var digits=val.slice(PCO_TEL.length).replace(/[^0-9]/g,'').slice(0,9);el.value=PCO_TEL+digits;var e=document.getElementById(el.id+'_e');var bad=digits.length>0&&digits.length<9;if(e)e.style.display=bad?'block':'none';el.classList.toggle('pco-e',bad);if(digits.length===9){el.classList.remove('pco-e');el.classList.add('pco-k');}else el.classList.remove('pco-k');}
+function pcoTelOk(id){var el=document.getElementById(id);return el?el.value.slice(PCO_TEL.length).replace(/[^0-9]/g,'').length===9:false;}
+function pcoEmailIn(el){var v=el.value.trim();var ok=/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v)&&(v.match(/@/g)||[]).length===1;var e=document.getElementById(el.id+'_e');if(!v.length){if(e)e.style.display='none';el.classList.remove('pco-e','pco-k');return;}if(e)e.style.display=ok?'none':'block';el.classList.toggle('pco-e',!ok);el.classList.toggle('pco-k',ok);}
+function pcoEmailOk(id){var el=document.getElementById(id);if(!el)return false;var v=el.value.trim();return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v)&&(v.match(/@/g)||[]).length===1;}
+function pcoFmtRut(el){var v=el.value.replace(/[^0-9kK]/g,'').toUpperCase();if(v.length<2){el.value=v;return;}var dv=v.slice(-1),cuerpo=v.slice(0,-1).replace(/\B(?=(\d{3})+(?!\d))/g,'.');el.value=cuerpo+'-'+dv;var digits=cuerpo.replace(/\./g,'');var ok=digits.length===8&&/^[0-9K]$/.test(dv);var ee=document.getElementById(el.id+'_e');if(ee)ee.style.display=(v.length&&!ok)?'block':'none';el.classList.toggle('pco-e',v.length>0&&!ok);el.classList.toggle('pco-k',v.length>0&&ok);}
+function pcoRutOk(id){var el=document.getElementById(id);if(!el)return false;var v=el.value.replace(/[^0-9kK]/g,'').toUpperCase();return v.slice(0,-1).length===8&&/^[0-9K]$/.test(v.slice(-1));}
+function pcoBlur(el){if(el.id&&el.id.includes('email')){pcoEmailIn(el);return;}if(el.id&&el.id.includes('rut')){pcoFmtRut(el);return;}if(el.type==='tel'){pcoTelIn(el);return;}if(el.tagName==='SELECT'){el.classList.toggle('pco-e',!el.value);return;}el.classList.toggle('pco-e',!el.value.trim());}
+function pcoComunas(prefix){var rgn=document.getElementById(prefix+'_region').value;var sel=document.getElementById(prefix+'_ciudad');if(!rgn||!PCO_COMUNAS[rgn]){sel.disabled=true;sel.innerHTML='<option value="">Selecciona primero la región...</option>';return;}sel.disabled=false;sel.innerHTML='<option value="">Selecciona comuna...</option>'+PCO_COMUNAS[rgn].map(function(c){return'<option value="'+c+'">'+c+'</option>';}).join('');}
+function pcoUpdTotal(){var t=pcoGrand+((pcoEntrega&&pcoEntrega.costo)||0);var el=document.getElementById('pcoMTotal');if(el)el.textContent=pcoFmt(t);}
+function pcoBuildEntrega(rgnPresel){
+  var el=document.getElementById('pcoEopts');el.innerHTML='';pcoEntrega=null;pcoUpdTotal();
+  ['pcoRetiroInfo','pcoEnvioInfo','pcoAddrSec'].forEach(function(id){var s=document.getElementById(id);if(s)s.style.display='none';});
+  document.getElementById('pcoEtitulo').style.display='block';
+  var wb=document.getElementById('pcoBtnWP');if(wb){wb.disabled=true;wb.style.opacity='.55';wb.style.cursor='not-allowed';}
+  var opts=[{id:'retiro',icon:'🏪',label:'Retiro en tienda',desc:'Retira en nuestra bodega en Santiago',badge:'<span class="pco-ebadge pco-bg">GRATIS</span>',costo:0,needsAddr:false}];
+  if(rgnPresel==='RM')opts.push({id:'despacho',icon:'🚚',label:'Despacho a domicilio',desc:'Gratis para Región Metropolitana · 1–3 días hábiles',badge:'<span class="pco-ebadge pco-bg">GRATIS</span>',costo:0,needsAddr:true});
+  else opts.push({id:'envio_propio',icon:'📦',label:'Envío propio',desc:'Coordinas tú el transporte desde nuestra bodega',badge:'<span class="pco-ebadge pco-bp">TÚ GESTIONAS</span>',costo:0,needsAddr:false});
+  opts.forEach(function(op){
+    var div=document.createElement('div');div.className='pco-eopt';
+    div.innerHTML='<span class="pco-eicon">'+op.icon+'</span><div class="pco-einfo"><strong>'+op.label+'</strong><span id="pco-d-'+op.id+'">'+op.desc+'</span></div>'+op.badge;
+    div.addEventListener('click',function(){document.querySelectorAll('.pco-eopt').forEach(function(x){x.classList.remove('sel');});div.classList.add('sel');pcoEntrega=Object.assign({},op);var e2=document.getElementById('pcoS2Err');if(e2)e2.style.display='none';var wb=document.getElementById('pcoBtnWP');if(wb){wb.disabled=false;wb.style.opacity='';wb.style.cursor='';}pcoShowEntrega(op.id,rgnPresel);});
+    el.appendChild(div);
+  });
+}
+function pcoShowEntrega(id,rgnPresel){
+  document.getElementById('pcoRetiroInfo').style.display=id==='retiro'?'block':'none';
+  document.getElementById('pcoEnvioInfo').style.display=id==='envio_propio'?'block':'none';
+  document.getElementById('pcoAddrSec').style.display=id==='despacho'?'block':'none';
+  if(id==='despacho'){var bilPfx=pcoType==='EMP'?'pco_emp':'pco_pn';var s1Rgn=(document.getElementById(bilPfx+'_region')||{}).value||'';var s1Dir=(document.getElementById(pcoType==='EMP'?'pco_emp_dir':'pco_pn_dir')||{}).value||'';var depRgn=document.getElementById('pco_dep_region');if(depRgn)depRgn.value=rgnPresel||s1Rgn||'';pcoComunas('pco_dep');var s1Cmn=(document.getElementById(bilPfx+'_ciudad')||{}).value||'';var depCmn=document.getElementById('pco_dep_ciudad');if(depCmn&&s1Cmn)depCmn.value=s1Cmn;var depDir=document.getElementById('pco_dep_dir');if(depDir)depDir.value=s1Dir.trim();}
+  pcoUpdTotal();
+}
+function pcoRecalcDesp(){if(!pcoEntrega||!pcoEntrega.needsAddr)return;var rgn=(document.getElementById('pco_dep_region')||{}).value;var cmn=(document.getElementById('pco_dep_ciudad')||{}).value;var dscEl=document.getElementById('pco-d-despacho');if(!rgn)return;var excl=cmn&&PCO_SIN_DESP_RM.some(function(c){return c.toLowerCase()===cmn.toLowerCase();});if(dscEl)dscEl.textContent=rgn==='RM'?(excl?'⚠️ Esta comuna no tiene despacho gratis.':'Despacho gratis · RM · 1–3 días hábiles'):'⚠️ Despacho gratis solo para RM.';pcoEntrega.costo=0;pcoUpdTotal();}
+function pcoResetEntrega(){var el=document.getElementById('pcoEopts');if(el)el.innerHTML='';['pcoRetiroInfo','pcoEnvioInfo','pcoAddrSec'].forEach(function(id){var s=document.getElementById(id);if(s)s.style.display='none';});var et=document.getElementById('pcoEtitulo');if(et)et.style.display='none';var wb=document.getElementById('pcoBtnWP');if(wb){wb.disabled=true;wb.style.opacity='.55';wb.style.cursor='not-allowed';}pcoEntrega=null;pcoUpdTotal();}
+function pcoRgnPreChk(){var rgn=(document.getElementById('pcoRgnPre')||{}).value;pcoResetEntrega();var msg=document.getElementById('pcoRgnMsg');var cc=document.getElementById('pcoCmnCheck');var cm=document.getElementById('pcoCmnMsg');if(cm)cm.style.display='none';if(!rgn){if(msg)msg.style.display='none';if(cc)cc.style.display='none';return;}if(rgn!=='RM'){if(msg)msg.style.display='block';if(cc)cc.style.display='none';document.getElementById('pcoEtitulo').style.display='block';pcoBuildEntrega(rgn);}else{if(msg)msg.style.display='none';if(cc){var sel=document.getElementById('pcoCmnPre');sel.innerHTML='<option value="">Selecciona tu comuna...</option>'+PCO_COMUNAS.RM.map(function(c){return'<option value="'+c+'">'+c+'</option>';}).join('');cc.style.display='block';}}}
+function pcoCmnPreChk(){var cmn=(document.getElementById('pcoCmnPre')||{}).value;pcoResetEntrega();var cm=document.getElementById('pcoCmnMsg');if(!cmn){if(cm)cm.style.display='none';return;}var excl=PCO_SIN_DESP_RM.some(function(c){return c.toLowerCase()===cmn.toLowerCase();});if(cm)cm.style.display=excl?'block':'none';document.getElementById('pcoEtitulo').style.display='block';pcoBuildEntrega(excl?null:'RM');}
+function pcoStep1(){document.getElementById('pcoS1').style.display='block';document.getElementById('pcoS2').style.display='none';document.getElementById('pcoDot1').className='pco-step active';document.getElementById('pcoDot2').className='pco-step';document.getElementById('pcoLine').classList.remove('done');}
+function pcoStep2(){
+  var ids=pcoType==='PN'?['pco_pn_nombre','pco_pn_rut','pco_pn_email','pco_pn_tel','pco_pn_dir','pco_pn_region','pco_pn_ciudad']:['pco_emp_rut','pco_emp_razon','pco_emp_giro','pco_emp_tel','pco_emp_email','pco_emp_dir','pco_emp_region','pco_emp_ciudad'];
+  var pfx=PCO_TEL;var empty=function(id){var el=document.getElementById(id);if(!el)return true;return el.value.trim().length===0||el.value.trim()===pfx;};
+  var errEl=document.getElementById('pcoS1Err');
+  if(ids.some(empty)){ids.forEach(function(id){var el=document.getElementById(id);if(el&&empty(id))el.classList.add('pco-e');});var first=ids.find(empty);if(first){var el=document.getElementById(first);if(el)el.scrollIntoView({behavior:'smooth',block:'center'});}if(errEl){errEl.textContent='Completa todos los campos obligatorios (*).';errEl.style.display='block';}return;}
+  if(errEl)errEl.style.display='none';
+  var rutId=pcoType==='PN'?'pco_pn_rut':'pco_emp_rut';if(!pcoRutOk(rutId)){var ee=document.getElementById(rutId+'_e');if(ee)ee.style.display='block';document.getElementById(rutId).classList.add('pco-e');document.getElementById(rutId).scrollIntoView({behavior:'smooth',block:'center'});return;}
+  var emailId=pcoType==='PN'?'pco_pn_email':'pco_emp_email';if(!pcoEmailOk(emailId)){var ee2=document.getElementById(emailId+'_e');if(ee2)ee2.style.display='block';document.getElementById(emailId).classList.add('pco-e');document.getElementById(emailId).scrollIntoView({behavior:'smooth',block:'center'});return;}
+  var telId=pcoType==='PN'?'pco_pn_tel':'pco_emp_tel';if(!pcoTelOk(telId)){var ee3=document.getElementById(telId+'_e');if(ee3)ee3.style.display='block';document.getElementById(telId).classList.add('pco-e');document.getElementById(telId).scrollIntoView({behavior:'smooth',block:'center'});return;}
+  document.getElementById('pcoS1').style.display='none';document.getElementById('pcoS2').style.display='block';
+  document.getElementById('pcoDot1').className='pco-step done';document.getElementById('pcoDot2').className='pco-step active';
+  document.getElementById('pcoLine').classList.add('done');
+  var s2Items=document.getElementById('pcoS2Items');
+  if(s2Items&&pcCart.length){s2Items.innerHTML=pcCart.map(function(item){return'<div class="pco-sumrow"><span>'+item.specStr+' × '+item.sheets+' plancha(s)</span><strong>'+pcoFmt(item.total)+'</strong></div>';}).join('');}
+  pcoEntrega=null;['pcoRetiroInfo','pcoEnvioInfo','pcoAddrSec'].forEach(function(id){var el=document.getElementById(id);if(el)el.style.display='none';});
+  var eopts=document.getElementById('pcoEopts');if(eopts)eopts.innerHTML='';document.getElementById('pcoEtitulo').style.display='none';
+  var s1Rgn=pcoType==='EMP'?(document.getElementById('pco_emp_region')||{}).value||'':(document.getElementById('pco_pn_region')||{}).value||'';
+  var s1Cmn=pcoType==='EMP'?(document.getElementById('pco_emp_ciudad')||{}).value||'':(document.getElementById('pco_pn_ciudad')||{}).value||'';
+  var rgnForOpts=null;var rgnCheck=document.getElementById('pcoRgnCheck');if(rgnCheck)rgnCheck.style.display='none';
+  if(pcoGrand>=PCO_UMBRAL){if(s1Rgn==='RM'){var excl=s1Cmn&&PCO_SIN_DESP_RM.some(function(c){return c.toLowerCase()===s1Cmn.toLowerCase();});rgnForOpts=excl?null:'RM';}else{rgnForOpts=s1Rgn||null;}}
+  pcoBuildEntrega(rgnForOpts);pcoUpdTotal();
+}
+function pcoOpen(){
+  if(!pcCart.length)return;
+  pcoGrand=pcCart.reduce(function(s,i){return s+i.total;},0);
+  pcoUpdTotal();
+  var s1I=document.getElementById('pcoS1Items');
+  var s1T=document.getElementById('pcoS1Total');
+  if(s1I)s1I.innerHTML=pcCart.map(function(item){
+    return '<div class="pco-sumrow"><span>'+item.specStr+' × '+item.sheets+' plancha(s)</span><strong>'+pcoFmt(item.total)+'</strong></div>';
+  }).join('');
+  if(s1T)s1T.textContent=pcoFmt(pcoGrand);
+  pcoStep1();
+  document.getElementById('pcoModal').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+function pcoClose(){document.getElementById('pcoModal').classList.remove('open');document.body.style.overflow='';}
+function pcoGetData(){var depDir=(document.getElementById('pco_dep_dir')||{}).value||'';var depRgn=(document.getElementById('pco_dep_region')||{}).value||'';var depCmn=(document.getElementById('pco_dep_ciudad')||{}).value||'';if(pcoType==='PN')return{tipo:'Persona Natural',nombre:(document.getElementById('pco_pn_nombre')||{}).value||'',rut:(document.getElementById('pco_pn_rut')||{}).value||'',email:(document.getElementById('pco_pn_email')||{}).value||'',tel:(document.getElementById('pco_pn_tel')||{}).value||'',dir:(document.getElementById('pco_pn_dir')||{}).value||'',region:(document.getElementById('pco_pn_region')||{}).value||'',ciudad:(document.getElementById('pco_pn_ciudad')||{}).value||'',dir_despacho:depDir,region_despacho:depRgn,ciudad_despacho:depCmn};return{tipo:'Empresa',rut:(document.getElementById('pco_emp_rut')||{}).value||'',razon:(document.getElementById('pco_emp_razon')||{}).value||'',giro:(document.getElementById('pco_emp_giro')||{}).value||'',tel:(document.getElementById('pco_emp_tel')||{}).value||'',email:(document.getElementById('pco_emp_email')||{}).value||'',dir:(document.getElementById('pco_emp_dir')||{}).value||'',region:(document.getElementById('pco_emp_region')||{}).value||'',ciudad:(document.getElementById('pco_emp_ciudad')||{}).value||'',dir_despacho:depDir,region_despacho:depRgn,ciudad_despacho:depCmn};}
+async function pcoSubmit(){var e2=document.getElementById('pcoS2Err');if(!pcoEntrega){if(e2){e2.textContent='Elige una modalidad de entrega para continuar.';e2.style.display='block';e2.scrollIntoView({behavior:'smooth',block:'center'});}return;}if(pcoEntrega.needsAddr){var depRgn=(document.getElementById('pco_dep_region')||{}).value;var depDir=((document.getElementById('pco_dep_dir')||{}).value||'').trim();if(!depRgn||!depDir){if(e2){e2.textContent='Completa la dirección de despacho.';e2.style.display='block';e2.scrollIntoView({behavior:'smooth',block:'center'});}return;}if(depRgn!=='RM'){alert('El despacho a domicilio gratis es solo para la Región Metropolitana.\nPara otras regiones usa Retiro en tienda o Envío propio.');return;}}
+  var client=pcoGetData();var total=pcoGrand+(pcoEntrega.costo||0);var btn=document.getElementById('pcoBtnWP');btn.disabled=true;btn.textContent='Procesando...';
+  try{var res=await fetch('/wp-json/polyplas/v1/webpay-init',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({total:Math.round(total),entrega:pcoEntrega.label,client:client,return_page:window.location.origin+'/gracias/',items:pcCart.map(function(item){
+          var piezas=item.pieces||[];
+          var corteTxt=piezas.map(function(p){return(p.qty>1?p.qty+' \xd7 ':'')+p.w+'\xd7'+p.h+' cm';}).join(', ');
+          var calcInfo=piezas.length?{
+            pieces:piezas.map(function(p){return{w:Math.round(p.w*10),h:Math.round(p.h*10),qty:p.qty};}),
+            Nsh:item.sheets,
+            tot:piezas.reduce(function(s,p){return s+(p.qty||1);},0)
+          }:null;
+          return{tipo:item.matName,dim:item.dimLabel,color:item.colorLabel,espesor:item.esp,qty:item.sheets,precio:item.unitPrice,corteMode:item.iguales?'iguales':'distintos',corteInstrucciones:corteTxt,calcInfo:calcInfo};
+        })})});var data=await res.json();if(!data.token||!data.url)throw new Error('Respuesta inválida');var form=document.createElement('form');form.method='POST';form.action=data.url;var inp=document.createElement('input');inp.type='hidden';inp.name='token_ws';inp.value=data.token;form.appendChild(inp);document.body.appendChild(form);form.submit();}catch(e){btn.disabled=false;btn.textContent='PAGAR CON WEBPAY PLUS';alert('Error al conectar con Webpay. Por favor intenta de nuevo.');}}
+
+document.addEventListener('click',function(e){if(e.target&&e.target.id==='pcoModal')pcoClose();});
+
+/* ── Precios desde Supabase (igual que los módulos de producto) ── */
+(function() {
+  var SB_URL = 'https://gdrkscedvkjtcvexnhzg.supabase.co';
+  var SB_KEY = 'sb_publishable_qT9WuJK5Wi6VghgMvcYIMw_IGBtn1Tc';
+  fetch(SB_URL + '/rest/v1/pp_stock?select=tipo,dim,color,espesor,cantidad,precio', {
+    headers: { 'apikey': SB_KEY, 'Authorization': 'Bearer ' + SB_KEY }
+  })
+  .then(function(r) { return r.json(); })
+  .then(function(rows) {
+    if (!Array.isArray(rows)) return;
+    rows.forEach(function(r) {
+      if (r.precio == null || r.precio <= 0) return;
+      var tipo = r.tipo, dim = r.dim, color = r.color, esp = r.espesor;
+      if (tipo === 'POLICARBONATO') {
+        tipo  = 'PC';
+        color = (color === 'policarbonato') ? 'natural' : color;
+      } else if (tipo === 'AA' || tipo === 'PA') {
+        if (dim.slice(-4) === '_pet')  { if (tipo !== 'AA') return; tipo = 'PET';  dim = dim.slice(0, -4); }
+        else if (dim.slice(-5) === '_petg') { if (tipo !== 'AA') return; tipo = 'PETG'; dim = dim.slice(0, -5); }
+        else if (dim.slice(-3) === '_pc')   { return; }
+      } else { return; }
+      if (!pcPrices[tipo])              pcPrices[tipo]              = {};
+      if (!pcPrices[tipo][dim])         pcPrices[tipo][dim]         = {};
+      if (!pcPrices[tipo][dim][color])  pcPrices[tipo][dim][color]  = {};
+      pcPrices[tipo][dim][color][esp] = r.precio;
+    });
+  })
+  .catch(function() {});
+})();
+
+/* ── Init ── */
+pcAddPiece(40,30,4);
+pcAddPiece(60,20,2);
+
+window.pcIniciarWizard=pcIniciarWizard;
+window.pcCartAddItem=pcCartAddItem;
+window.pcCartRemoveItem=pcCartRemoveItem;
+window.pcCartAgregarOtro=pcCartAgregarOtro;
+window.pcWizSelectQuality=pcWizSelectQuality;
+window.pcWizSelectType=pcWizSelectType;
+window.pcWizSelectDim=pcWizSelectDim;
+window.pcWizSelectMix=pcWizSelectMix;
+window.pcWizSelectEsp=pcWizSelectEsp;
+window.pcWizSelectColorInStep3=pcWizSelectColorInStep3;
+window.pcWizSelectColor=pcWizSelectColor;
+window.pcWizGoBack=pcWizGoBack;
+window.pcAddPiece=pcAddPiece;
+window.pcRemovePiece=pcRemovePiece;
+window.pcoOpen=pcoOpen;
+window.pcoClose=pcoClose;
+window.pcoStep1=pcoStep1;
+window.pcoStep2=pcoStep2;
+window.pcoSetType=pcoSetType;
+window.pcoFmtRut=pcoFmtRut;
+window.pcoTelIn=pcoTelIn;
+window.pcoTelKd=pcoTelKd;
+window.pcoTelFocus=pcoTelFocus;
+window.pcoEmailIn=pcoEmailIn;
+window.pcoBlur=pcoBlur;
+window.pcoComunas=pcoComunas;
+window.pcoRgnPreChk=pcoRgnPreChk;
+window.pcoCmnPreChk=pcoCmnPreChk;
+window.pcoRecalcDesp=pcoRecalcDesp;
+window.pcoSubmit=pcoSubmit;
+
+function pcCmpSelect(isMix,keyOrIdx){
+  if(isMix){var mix=pcWizMixOptions[keyOrIdx];if(!mix)return;pcWiz.dimKey=null;pcWiz.dimMix=mix;pcWiz.dimMixIdx=keyOrIdx;}
+  else{pcWiz.dimKey=keyOrIdx;pcWiz.dimMix=null;pcWiz.dimMixIdx=-1;}
+  pcWizShowPrice();
+}
+window.pcCmpSelect=pcCmpSelect;
+
+function pcDescargarPDF(){
+  var prev=document.title;
+  var mat=pcWiz.matKey?(pcProducts[pcWiz.matKey]||{}).nombre||'Cortes':'Cortes';
+  var dim=pcWiz.dimMix?'Mix':(pcWiz.dimKey||'');
+  document.title='Polyplas - Diagrama de cortes'+(dim?' · '+dim:'')+(mat?' · '+mat:'');
+  window.print();
+  document.title=prev;
+}
+window.pcDescargarPDF=pcDescargarPDF;
+
+})();
+</script>
+</body></html>
